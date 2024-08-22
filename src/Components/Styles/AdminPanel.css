@@ -1,0 +1,44 @@
+/* src/AdminPanel.css */
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    background: #001529;
+    color: #fff;
+  }
+  
+  .profile-section {
+    display: flex;
+    align-items: center;
+  }
+  
+  .profile-name {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+  
+  .profile-flag {
+    margin-right: 20px;
+  }
+  
+  .logout-button {
+    margin-left: 1200px;
+  }
+  
+  .sider {
+    background: #fff;
+  }
+  
+  .content {
+    background: #fff;
+    padding: 24px;
+    margin: 0;
+    min-height: 280px;
+  }
+  

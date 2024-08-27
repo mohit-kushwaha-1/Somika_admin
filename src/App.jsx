@@ -17,6 +17,8 @@ import TransmissionType from './Components/Masters/TransmissionType';
 import RejectionReason from './Components/Masters/RejectionReason';
 import DollarValue from './Components/Masters/DollarValue';
 import IdType from './Components/Masters/IdType';
+// import DriverPostData from './Components/PostData/DriverPostData';
+// import VehiclePostData from './Components/PostData/VehiclePostData';
 
 const App = () => {
   return (
@@ -39,7 +41,9 @@ const App = () => {
         <Route path='/rejection-reason' element={<RejectionReason/>} />
         <Route path='/dollar-value' element={<DollarValue/>} />
         <Route path='/id-type' element={<IdType/>} />
-        
+        {/* <Route path='/driverData' element={<DriverPostData/>} /> */}
+        {/* <Route path='/vehicleData' element={<VehiclePostData/>} /> */}
+
       </Routes>
     </Router>
   );

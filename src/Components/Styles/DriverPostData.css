@@ -1,0 +1,57 @@
+
+.formContainer {
+    width: 60%;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #f7f8fa;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+  
+  
+  .formContainer h2 {
+    margin-bottom: 50px;
+    text-align: center;
+    font-size: 24px;
+    color: #333;
+  }
+  
+
+  .formFlexContainer {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+  
+ 
+  .formColumn {
+    flex: 1;
+  }
+  
+  
+  .ant-form-item {
+    margin-bottom: 20px;
+  }
+  
+
+  .ant-input {
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  .btn-driver {
+    width: 100%;
+    background-color: #1890ff;
+    border-color: #1890ff;
+    color: white;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 4px;
+    /* transition: background-color 0.3s ease, border-color 0.3s ease; */
+  }
+
+  /* .ant-btn-driver:hover {
+    background-color: #40a9ff;
+    border-color: #40a9ff;
+  } */
+  

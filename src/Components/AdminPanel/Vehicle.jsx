@@ -139,14 +139,14 @@ const Vehicle = () => {
       key: 'brand_make',
     },
     {
-      title: 'Mobile',
-      dataIndex: 'mobile',
-      key: 'mobile',
-    },
-    {
       title: 'Country Code',
       dataIndex: 'country_code',
       key: 'country_code',
+    },
+    {
+      title: 'Mobile',
+      dataIndex: 'mobile',
+      key: 'mobile',
     },
     // {
     //   title: 'Base Location',
@@ -174,11 +174,11 @@ const Vehicle = () => {
       dataIndex: 'department',
       key: 'department',
     },
-    {
-      title: 'Company',
-      dataIndex: 'company',
-      key: 'company',
-    },
+    // {
+    //   title: 'Company',
+    //   dataIndex: 'company',
+    //   key: 'company',
+    // },
     {
       title: 'Actions',
       key: 'actions',
@@ -222,49 +222,49 @@ const Vehicle = () => {
             name="vehicle_id"
             rules={[{ required: true, message: 'Please input the vehicle ID!' }]}
           >
-            <Input />
+            <Input placeholder='ANH10 0068485' />
           </Form.Item>
           <Form.Item
             label="Vehicle Number"
             name="vehicle_number"
             rules={[{ required: true, message: 'Please input the vehicle number!' }]}
           >
-            <Input />
+            <Input placeholder='0594 AN 05' />
           </Form.Item>
           <Form.Item
             label="Capacity"
             name="capacity"
             rules={[{ required: true, message: 'Please input the capacity!' }]}
           >
-            <InputNumber style={{ width: '100%' }} />
+            <InputNumber style={{ width: '100%' }} placeholder='5' />
           </Form.Item>
           <Form.Item
             label="Transmission Type"
             name="TrasmissionType"
             rules={[{ required: true, message: 'Please input the transmission type!' }]}
           >
-            <Input />
+            <Input placeholder='Petrol' />
           </Form.Item>
           <Form.Item
             label="Brand Make"
             name="brand_make"
             rules={[{ required: true, message: 'Please input the brand make!' }]}
           >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Mobile"
-            name="mobile"
-            rules={[{ required: true, message: 'Please input the mobile number!' }]}
-          >
-            <Input />
+            <Input placeholder='Toyota' />
           </Form.Item>
           <Form.Item
             label="Country Code"
             name="country_code"
             rules={[{ required: true, message: 'Please input the country code!' }]}
           >
-            <Input />
+            <Input placeholder='+91' />
+          </Form.Item>
+          <Form.Item
+            label="Mobile"
+            name="mobile"
+            rules={[{ required: true, message: 'Please input the mobile number!' }]}
+          >
+            <Input placeholder='123-456-7890' />
           </Form.Item>
           {/* <Form.Item
             label="Base Location"
@@ -290,14 +290,14 @@ const Vehicle = () => {
             name="department"
             rules={[{ required: true, message: 'Please input the department!' }]}
           >
-            <Input />
+            <Input placeholder='Driver' />
           </Form.Item>
           <Form.Item
             label="Company"
             name="company"
             rules={[{ required: true, message: 'Please select the company!' }]}
           >
-            <Input />
+            <Input placeholder='60c72b1f4f1a2c001c9e13b8' />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">

@@ -140,11 +140,11 @@ const Drivers = () => {
       dataIndex: 'address',
       key: 'address',
     },
-    {
-      title: 'Vehicle ID',
-      dataIndex: 'vehicle_id',
-      key: 'vehicle_id',
-    },
+    // {
+    //   title: 'Vehicle ID',
+    //   dataIndex: 'vehicle_id',
+    //   key: 'vehicle_id',
+    // },
     {
       title: 'Rating',
       dataIndex: ['ratings', 'rating'],

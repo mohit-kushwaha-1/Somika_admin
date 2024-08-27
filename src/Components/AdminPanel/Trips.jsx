@@ -30,7 +30,7 @@ const Trips = () => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('http://102.133.144.226:8000/trips/getNearestCab');
+      const response = await axios.get('http://102.133.144.226:8000/api/v1/trips/getNearestCab');
       setData(response.data.DUMMY_DATA.available_vehicles);
       setLoading(false);
     } catch (error) {

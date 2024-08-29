@@ -1,27 +1,50 @@
-/* src/AdminPanel.css */
 *{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
-.header {
+
+  .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 24px;
-    background: #001529;
-    color: #fff;
-  }
-  
-  .profile-section {
+    /* background: #001529; */
+    background: #E1D9D1;
+    padding: 0 16px;
+}
+
+.logo-vinMart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  /* border-radius: 10px; */
+  /* background-color: rgba(243, 229, 229, 0.7);  */
+  padding: 0 20px;
+}
+
+.logo-vinMart img {
+  max-height: 60px; 
+  /* max-width: 280px; */
+  width: 100px;
+  display: block;
+}
+
+
+.profile-section {
     display: flex;
     align-items: center;
-  }
-  
-  .profile-name {
-    margin-left: 10px;
-    margin-right: 10px;
-  }
+    gap: 8px;
+    color: #fff;
+}
+
+.profile-name {
+    /* color: white; */
+    color: black;
+    font-weight: 700;
+    margin-right: 5rem;
+
+}
   
   .profile-flag {
     margin-right: 20px;

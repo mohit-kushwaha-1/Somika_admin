@@ -6,7 +6,7 @@ const DomainName = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDomain, setEditingDomain] = useState(null);
-  const [form] = Form.useForm(); // Use Form instance for handling form state
+  const [form] = Form.useForm(); 
 
   useEffect(() => {
     fetchDomains();
@@ -53,6 +53,7 @@ const DomainName = () => {
         method: 'DELETE',
       });
       fetchDomains();
+      message.success('Domain Name deleted successfully!')
     } catch (error) {
       console.error('Error deleting domain:', error);
       message.error('Error deleting domain.');
@@ -79,6 +80,7 @@ const DomainName = () => {
 
       fetchDomains();
       setIsModalOpen(false);
+      message.success('Domain Name added successfully!');
     } catch (error) {
       message.error('Error adding domain.');
       console.error('Error adding domain:', error);
@@ -105,6 +107,7 @@ const DomainName = () => {
 
       fetchDomains();
       setIsModalOpen(false);
+      message.success('Domain Name updated successfully!');
     } catch (error) {
       message.error('Error updating domain.');
       console.error('Error updating domain:', error);

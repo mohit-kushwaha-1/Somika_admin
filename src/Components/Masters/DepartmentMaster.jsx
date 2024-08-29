@@ -6,7 +6,7 @@ const DepartmentMaster = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDepartment, setEditingDepartment] = useState(null);
-  const [form] = Form.useForm(); // Use Form instance for handling form state
+  const [form] = Form.useForm(); 
 
   useEffect(() => {
     fetchDepartments();
@@ -53,6 +53,7 @@ const DepartmentMaster = () => {
         method: 'DELETE',
       });
       fetchDepartments();
+      message.success('Department deleted successfully!')
     } catch (error) {
       console.error('Error deleting department:', error);
       message.error('Error deleting department.');
@@ -79,6 +80,7 @@ const DepartmentMaster = () => {
 
       fetchDepartments();
       setIsModalOpen(false);
+      message.success('Depatment added successfully!')
     } catch (error) {
       message.error('Error adding department.');
       console.error('Error adding department:', error);
@@ -105,6 +107,7 @@ const DepartmentMaster = () => {
 
       fetchDepartments();
       setIsModalOpen(false);
+      message.success('Department updated successfully!')
     } catch (error) {
       message.error('Error updating department.');
       console.error('Error updating department:', error);

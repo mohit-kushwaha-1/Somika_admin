@@ -16,7 +16,8 @@ import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input, InputNumber } from 'antd';
 import axios from 'axios';
 
-const Trips = () => {
+const Trips = () =>
+{
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -24,63 +25,79 @@ const Trips = () => {
   const [form] = Form.useForm();
   const [editingTrip, setEditingTrip] = useState(null);
 
-  useEffect(() => {
+  useEffect(() =>
+  {
     fetchData();
   }, []);
 
-  const fetchData = async () => {
-    try {
+  const fetchData = async () =>
+  {
+    try
+    {
       const response = await axios.get('http://102.133.144.226:8000/api/v1/trips/getNearestCab');
       setData(response.data.DUMMY_DATA.available_vehicles);
       setLoading(false);
-    } catch (error) {
+    } catch (error)
+    {
       console.error('Error fetching trip data:', error);
       setLoading(false);
     }
   };
 
-  const handleAdd = () => {
+  const handleAdd = () =>
+  {
     form.resetFields();
     setIsEditing(false);
     setIsModalVisible(true);
   };
 
-  const handleEdit = (record) => {
+  const handleEdit = (record) =>
+  {
     setEditingTrip(record);
     form.setFieldsValue(record);
     setIsEditing(true);
     setIsModalVisible(true);
   };
 
-  const handleCancel = () => {
+  const handleCancel = () =>
+  {
     setIsModalVisible(false);
   };
 
-  const handleFinish = async (values) => {
-    try {
-      if (isEditing) {
-        await axios.put(`http://102.133.144.226:8000/trips/getNearestCab/${editingTrip._id}`, values);
-      } else {
+  const handleFinish = async (values) =>
+  {
+    try
+    {
+      if (isEditing)
+      {
+        await axios.put(`http://102.133.144.226:8000/trips/getNearestCab/${ editingTrip._id }`, values);
+      } else
+      {
         await axios.post('http://102.133.144.226:8000/trips/getNearestCab', values);
       }
       fetchData();
       setIsModalVisible(false);
-    } catch (error) {
+    } catch (error)
+    {
       console.error('Error submitting form:', error);
     }
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = (id) =>
+  {
     Modal.confirm({
       title: 'Are you sure you want to delete this trip?',
       okText: 'Yes',
       okType: 'danger',
       cancelText: 'No',
-      onOk: async () => {
-        try {
-          await axios.delete(`http://102.133.144.226:8000/trips/getNearestCab/${id}`);
+      onOk: async () =>
+      {
+        try
+        {
+          await axios.delete(`http://102.133.144.226:8000/trips/getNearestCab/${ id }`);
           fetchData(); // Refresh the data after deletion
-        } catch (error) {
+        } catch (error)
+        {
           console.error('Error deleting trip:', error);
         }
       },
@@ -142,9 +159,9 @@ const Trips = () => {
 
   return (
     <div>
-      <Button type="primary" onClick={handleAdd} style={{ marginBottom: 16 }}>
+      {/* <Button type="primary" onClick={handleAdd} style={{ marginBottom: 16 }}>
         Add Trip
-      </Button>
+      </Button> */}
       <Table
         columns={columns}
         dataSource={data}

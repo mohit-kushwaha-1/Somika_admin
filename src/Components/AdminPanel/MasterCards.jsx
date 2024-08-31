@@ -2,9 +2,11 @@
 import React from 'react';
 import '../Styles/MasterCards.css';
 
-const MasterCards = ({ setSelectedTab }) => {
+const MasterCards = ({ setSelectedTab }) =>
+{
 
-    const handleCardClick = (tabKey) => {
+    const handleCardClick = (tabKey) =>
+    {
         setSelectedTab(tabKey);
     };
 
@@ -29,7 +31,7 @@ const MasterCards = ({ setSelectedTab }) => {
                 Courier Status Master
             </div> */}
             <div className="card" onClick={() => handleCardClick('domain-name')}>
-                Domain Name
+                Allowed Domains
             </div>
             {/* <div className="card" onClick={() => handleCardClick('employee-status')}>
                 Employee Status
@@ -53,10 +55,10 @@ const MasterCards = ({ setSelectedTab }) => {
                 ID Type
             </div>
             <div className="card" onClick={() => handleCardClick('brand')}>
-                Brand
+                Brand Make
             </div>
             <div className="card" onClick={() => handleCardClick('country-code')}>
-               Country Code
+                Country Code
             </div>
         </div>
     );

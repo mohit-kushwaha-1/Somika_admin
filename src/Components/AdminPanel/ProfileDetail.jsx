@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
-const ProfileDetail = () => {
+const ProfileDetail = () =>
+{
+
   return (
     <div>
-      <h1>Hey, Somika</h1>
+      <h1>Hey,{" "}{JSON.parse(localStorage.getItem("user")).name} </h1>
     </div>
   )
 }

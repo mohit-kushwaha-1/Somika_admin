@@ -4,73 +4,113 @@ import axios from 'axios';
 
 const { Option } = Select;
 
-const Vehicle = () => {
+const Vehicle = () =>
+{
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [form] = Form.useForm();
   const [editingVehicle, setEditingVehicle] = useState(null);
-  const [locations, setLocations] = useState([]);
 
-  useEffect(() => {
+  // State variables for dropdowns
+  const [transmissionTypes, setTransmissionTypes] = useState([]);
+  const [brandMakes, setBrandMakes] = useState([]);
+  const [countryCodes, setCountryCodes] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [companies, setCompanies] = useState([]);
+
+  useEffect(() =>
+  {
     fetchData();
-    fetchLocations(); // Fetch allowed locations
+    fetchDropdownData();
   }, []);
 
-  const fetchData = async () => {
+  const fetchData = async () =>
+  {
     setLoading(true);
-    try {
+    try
+    {
       const response = await axios.get('http://102.133.144.226:8000/api/v1/vehicles');
       setData(response.data);
-    } catch (error) {
+    } catch (error)
+    {
       message.error('Error fetching vehicles. Please try again later.');
       console.error('Error fetching vehicles:', error);
-    } finally {
+    } finally
+    {
       setLoading(false);
     }
   };
 
-  const fetchLocations = async () => {
-    try {
-      const response = await axios.get('http://102.133.144.226:8000/api/v1/companies/getAllCompaniesLocation');
-      setLocations(response.data); // Adjust according to your actual API response
-    } catch (error) {
-      message.error('Error fetching locations. Please try again later.');
-      console.error('Error fetching locations:', error);
+  const fetchDropdownData = async () =>
+  {
+    try
+    {
+      // Fetch transmission types
+      const transmissionResponse = await fetch('http://102.133.144.226:8000/api/v1/transmission');
+      const transmissionResult = await transmissionResponse.json();
+      setTransmissionTypes(transmissionResult);
+
+      // Fetch brand makes
+      const brandMakesResponse = await fetch('http://102.133.144.226:8000/api/v1/brand');
+      const brandMakesResult = await brandMakesResponse.json();
+      setBrandMakes(brandMakesResult);
+
+      // Fetch country codes
+      const countryCodesResponse = await fetch('http://102.133.144.226:8000/api/v1/countryCode');
+      const countryCodesResult = await countryCodesResponse.json();
+      setCountryCodes(countryCodesResult);
+
+      // Fetch departments
+      const departmentsResponse = await fetch('http://102.133.144.226:8000/api/v1/department');
+      const departmentsResult = await departmentsResponse.json();
+      setDepartments(departmentsResult);
+
+      // Fetch companies
+      const companiesResponse = await fetch('http://102.133.144.226:8000/api/v1/companies');
+      const companiesResult = await companiesResponse.json();
+      setCompanies(companiesResult);
+
+    } catch (error)
+    {
+      console.error('Error fetching dropdown data:', error);
+      message.error('Error fetching dropdown data.');
     }
   };
 
-  const handleAdd = () => {
+  const handleAdd = () =>
+  {
     form.resetFields();
     setIsEditing(false);
     setIsModalVisible(true);
   };
 
-  const handleEdit = (record) => {
+  const handleEdit = (record) =>
+  {
     setEditingVehicle(record);
     form.setFieldsValue({
       vehicle_id: record.vehicle_id,
       vehicle_number: record.vehicle_number,
       capacity: record.capacity,
-      TrasmissionType: record.TrasmissionType,
-      brand_make: record.brand_make,
+      TrasmissionType: record.TrasmissionType._id,
+      brand_make: record.brand_make._id,
       mobile: record.mobile,
-      country_code: record.country_code,
-      base_location: record.base_location,
-      allowed_locations: record.allowed_locations || [], // Default to empty array
-      department: record.department,
-      company: record.company,
+      country_code: record.country_code._id,
+      department: record.department._id,
+      company: record.company._id,
     });
     setIsEditing(true);
     setIsModalVisible(true);
   };
 
-  const handleCancel = () => {
+  const handleCancel = () =>
+  {
     setIsModalVisible(false);
   };
 
-  const handleFinish = async (values) => {
+  const handleFinish = async (values) =>
+  {
     const vehicleData = {
       vehicle_id: values.vehicle_id,
       vehicle_number: values.vehicle_number,
@@ -79,34 +119,39 @@ const Vehicle = () => {
       brand_make: values.brand_make,
       mobile: values.mobile,
       country_code: values.country_code,
-      base_location: values.base_location,
-      allowed_locations: values.allowed_locations || [], // Ensure it's an array
       department: values.department,
       company: values.company,
     };
 
-    try {
-      if (isEditing) {
-        await axios.put(`http://102.133.144.226:8000/api/v1/vehicles/${editingVehicle._id}`, vehicleData);
+    try
+    {
+      if (isEditing)
+      {
+        await axios.put(`http://102.133.144.226:8000/api/v1/vehicles/${ editingVehicle._id }`, vehicleData);
         message.success('Vehicle updated successfully.');
-      } else {
+      } else
+      {
         await axios.post('http://102.133.144.226:8000/api/v1/vehicles', vehicleData);
         message.success('Vehicle added successfully.');
       }
       fetchData();
       setIsModalVisible(false);
-    } catch (error) {
+    } catch (error)
+    {
       message.error('Error submitting form. Please try again later.');
       console.error('Error submitting form:', error);
     }
   };
 
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://102.133.144.226:8000/api/v1/vehicles/${id}`);
+  const handleDelete = async (id) =>
+  {
+    try
+    {
+      await axios.delete(`http://102.133.144.226:8000/api/v1/vehicles/${ id }`);
       message.success('Vehicle deleted successfully.');
       fetchData();
-    } catch (error) {
+    } catch (error)
+    {
       message.error('Error deleting vehicle. Please try again later.');
       console.error('Error deleting vehicle:', error);
     }
@@ -130,55 +175,34 @@ const Vehicle = () => {
     },
     {
       title: 'Transmission Type',
-      dataIndex: 'TrasmissionType',
-      key: 'TrasmissionType',
+      dataIndex: ['TrasmissionType', 'type'],
+      key: 'TrasmissionType.type',
     },
     {
       title: 'Brand Make',
-      dataIndex: 'brand_make',
-      key: 'brand_make',
+      dataIndex: ['brand_make', 'name'],
+      key: 'brand_make.name',
     },
     {
       title: 'Country Code',
-      dataIndex: 'country_code',
-      key: 'country_code',
+      dataIndex: ['country_code', 'code'],
+      key: 'country_code.code',
     },
     {
       title: 'Mobile',
       dataIndex: 'mobile',
       key: 'mobile',
     },
-    // {
-    //   title: 'Base Location',
-    //   dataIndex: 'base_location',
-    //   key: 'base_location',
-    // },
-    // {
-    //   title: 'Allowed Locations',
-    //   dataIndex: 'allowed_locations',
-    //   key: 'allowed_locations',
-    //   render: (allowed_locations) => (
-    //     <>
-    //       {Array.isArray(allowed_locations) ? (
-    //         allowed_locations.map(loc => (
-    //           <Tag key={loc}>{loc}</Tag>
-    //         ))
-    //       ) : (
-    //         <Tag>Invalid Data</Tag>
-    //       )}
-    //     </>
-    //   ),
-    // },
     {
       title: 'Department',
-      dataIndex: 'department',
-      key: 'department',
+      dataIndex: ['department', 'name'],
+      key: 'department.name',
     },
-    // {
-    //   title: 'Company',
-    //   dataIndex: 'company',
-    //   key: 'company',
-    // },
+    {
+      title: 'Company',
+      dataIndex: ['company', 'name'],
+      key: 'company.name',
+    },
     {
       title: 'Actions',
       key: 'actions',
@@ -194,6 +218,7 @@ const Vehicle = () => {
       ),
     },
   ];
+
 
   return (
     <div>
@@ -234,70 +259,75 @@ const Vehicle = () => {
           <Form.Item
             label="Capacity"
             name="capacity"
-            rules={[{ required: true, message: 'Please input the capacity!' }]}
+            rules={[{ required: true, message: 'Please select the capacity!' }]}
           >
-            <InputNumber style={{ width: '100%' }} placeholder='5' />
+            <Select placeholder="Select capacity">
+              <Option value={4}>4</Option>
+              <Option value={7}>7</Option>
+            </Select>
           </Form.Item>
           <Form.Item
             label="Transmission Type"
             name="TrasmissionType"
-            rules={[{ required: true, message: 'Please input the transmission type!' }]}
+            rules={[{ required: true, message: 'Please select the transmission type!' }]}
           >
-            <Input placeholder='Petrol' />
+            <Select placeholder="Select transmission type">
+              {transmissionTypes.map(type => (
+                <Option key={type._id} value={type._id}>{type.type}</Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item
             label="Brand Make"
             name="brand_make"
-            rules={[{ required: true, message: 'Please input the brand make!' }]}
+            rules={[{ required: true, message: 'Please select the brand make!' }]}
           >
-            <Input placeholder='Toyota' />
+            <Select placeholder="Select brand make">
+              {brandMakes.map(brand => (
+                <Option key={brand._id} value={brand._id}>{brand.name}</Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item
             label="Country Code"
             name="country_code"
-            rules={[{ required: true, message: 'Please input the country code!' }]}
+            rules={[{ required: true, message: 'Please select the country code!' }]}
           >
-            <Input placeholder='+91' />
+            <Select placeholder="Select country code">
+              {countryCodes.map(code => (
+                <Option key={code._id} value={code._id}>{code.code}</Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item
             label="Mobile"
             name="mobile"
             rules={[{ required: true, message: 'Please input the mobile number!' }]}
+
           >
-            <Input placeholder='123-456-7890' />
+            <Input placeholder='' minLength={9} maxLength={10} />
           </Form.Item>
-          {/* <Form.Item
-            label="Base Location"
-            name="base_location"
-            rules={[{ required: true, message: 'Please input the base location!' }]}
-          >
-            <Input />
-          </Form.Item> */}
-          {/* <Form.Item
-            label="Allowed Locations"
-            name="allowed_locations"
-            rules={[{ required: true, message: 'Please select allowed locations!' }]}
-          >
-            <Select mode="multiple" placeholder="Select allowed locations" style={{ width: '100%' }}>
-              {locations.map(loc => (
-                <Option key={loc._id} value={loc._id}>{loc.name}</Option>
-              ))}
-            </Select>
-            <Input/>
-          </Form.Item> */}
           <Form.Item
             label="Department"
             name="department"
-            rules={[{ required: true, message: 'Please input the department!' }]}
+            rules={[{ required: true, message: 'Please select the department!' }]}
           >
-            <Input placeholder='Driver' />
+            <Select placeholder="Select department">
+              {departments.map(dept => (
+                <Option key={dept._id} value={dept._id}>{dept.name}</Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item
             label="Company"
             name="company"
             rules={[{ required: true, message: 'Please select the company!' }]}
           >
-            <Input placeholder='60c72b1f4f1a2c001c9e13b8' />
+            <Select placeholder="Select company">
+              {companies.map(company => (
+                <Option key={company._id} value={company._id}>{company.name}</Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">

@@ -1,103 +1,69 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input } from 'antd';
 
-const CompanyMaster = () => {
+const CompanyMaster = () =>
+{
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCompany, setEditingCompany] = useState(null);
 
-  useEffect(() => {
+  useEffect(() =>
+  {
     fetchData();
   }, []);
-
-  const fetchData = async () => {
-    try {
+  var arr = []
+  const fetchData = async () =>
+  {
+    try
+    {
       const response = await fetch('http://102.133.144.226:8000/api/v1/companies');
       const result = await response.json();
-      setData(result);
+      result.map((result_data) =>
+      {
+        if (result_data.is_type == 0)
+        {
+          arr.push(result_data)
+        }
+      })
+      setData(arr);
       setLoading(false);
-    } catch (error) {
+    } catch (error)
+    {
       console.error('Error fetching data:', error);
       setLoading(false);
     }
   };
 
-  const handleAdd = () => {
+  const handleAdd = () =>
+  {
     setEditingCompany(null);
     setIsModalOpen(true);
   };
 
-  const handleEdit = (record) => {
+  const handleEdit = (record) =>
+  {
     setEditingCompany(record);
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    try {
-      await fetch(`http://102.133.144.226:8000/api/v1/companies/${id}`, {
+  const handleDelete = async (id) =>
+  {
+    try
+    {
+      await fetch(`http://102.133.144.226:8000/api/v1/companies/${ id }`, {
         method: 'DELETE',
       });
       fetchData();
-    } catch (error) {
+    } catch (error)
+    {
       console.error('Error deleting data:', error);
     }
   };
 
 
-  // const handlePost = async (values) => {
-  //   const postData = {
-  //     name: values.name,
-  //     address: values.address,
-  //     is_type: values.is_type,
-  //     location: {
-  //       type: 'Point',
-  //       coordinates: [parseFloat(values.longitude), parseFloat(values.latitude)],
-  //     },
-  //   };
-
-  //   try {
-  //     await fetch('http://102.133.144.226:8000/api/v1/companies', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify(postData),
-  //     });
-  //     fetchData();
-  //     setIsModalOpen(false);
-  //   } catch (error) {
-  //     console.error('Error submitting data:', error);
-  //   }
-  // };
-
-  // const handlePut = async (values) => {
-  //   const putData = {
-  //     name: values.name,
-  //     address: values.address,
-  //     is_type: values.is_type,
-  //     location: {
-  //       type: 'Point',
-  //       coordinates: [parseFloat(values.longitude), parseFloat(values.latitude)],
-  //     },
-  //   };
-
-  //   try {
-  //     await fetch(`http://102.133.144.226:8000/api/v1/companies/${editingCompany._id}`, {
-  //       method: 'PUT',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify(putData),
-  //     });
-  //     fetchData();
-  //     setIsModalOpen(false);
-  //   } catch (error) {
-  //     console.error('Error updating data:', error);
-  //   }
-  // };
-
-  const handlePost = async (values) => {
+  const handlePost = async (values) =>
+  {
     const postData = {
       name: values.name,
       address: values.address,
@@ -105,10 +71,11 @@ const CompanyMaster = () => {
         type: 'Point',
         coordinates: [values.longitude, values.latitude],
       },
-      is_type: values.is_type,  // Make sure to include this field
+      is_type: 0,  // Make sure to include this field
     };
 
-    try {
+    try
+    {
       const response = await fetch('http://102.133.144.226:8000/api/v1/companies', {
         method: 'POST',
         headers: {
@@ -117,18 +84,21 @@ const CompanyMaster = () => {
         body: JSON.stringify(postData),
       });
 
-      if (!response.ok) {
+      if (!response.ok)
+      {
         throw new Error('Error submitting data');
       }
 
       fetchData();
       setIsModalOpen(false);
-    } catch (error) {
+    } catch (error)
+    {
       console.error('Error submitting data:', error);
     }
   };
 
-  const handlePut = async (values) => {
+  const handlePut = async (values) =>
+  {
     const putData = {
       name: values.name,
       address: values.address,
@@ -139,8 +109,9 @@ const CompanyMaster = () => {
       is_type: values.is_type,  // Make sure to include this field
     };
 
-    try {
-      const response = await fetch(`http://102.133.144.226:8000/api/v1/companies/${editingCompany._id}`, {
+    try
+    {
+      const response = await fetch(`http://102.133.144.226:8000/api/v1/companies/${ editingCompany._id }`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -148,23 +119,28 @@ const CompanyMaster = () => {
         body: JSON.stringify(putData),
       });
 
-      if (!response.ok) {
+      if (!response.ok)
+      {
         throw new Error('Error updating data');
       }
 
       fetchData();
       setIsModalOpen(false);
-    } catch (error) {
+    } catch (error)
+    {
       console.error('Error updating data:', error);
     }
   };
 
 
 
-  const handleSubmit = async (values) => {
-    if (editingCompany) {
+  const handleSubmit = async (values) =>
+  {
+    if (editingCompany)
+    {
       await handlePut(values);
-    } else {
+    } else
+    {
       await handlePost(values);
     }
   };

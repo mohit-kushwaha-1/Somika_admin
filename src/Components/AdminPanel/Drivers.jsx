@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input, message } from 'antd';
 import axios from 'axios';
 
-const Drivers = () => {
+const Drivers = () =>
+{
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -10,30 +11,37 @@ const Drivers = () => {
   const [form] = Form.useForm();
   const [editingDriver, setEditingDriver] = useState(null);
 
-  useEffect(() => {
+  useEffect(() =>
+  {
     fetchData();
   }, []);
 
-  const fetchData = async () => {
+  const fetchData = async () =>
+  {
     setLoading(true);
-    try {
+    try
+    {
       const response = await axios.get('http://102.133.144.226:8000/api/v1/driver');
       setData(response.data);
-    } catch (error) {
+    } catch (error)
+    {
       message.error('Error fetching drivers. Please try again later.');
       console.error('Error fetching drivers:', error);
-    } finally {
+    } finally
+    {
       setLoading(false);
     }
   };
 
-  const handleAdd = () => {
+  const handleAdd = () =>
+  {
     form.resetFields();
     setIsEditing(false);
     setIsModalVisible(true);
   };
 
-  const handleEdit = (record) => {
+  const handleEdit = (record) =>
+  {
     setEditingDriver(record);
     form.setFieldsValue({
       name: record.name,
@@ -53,11 +61,13 @@ const Drivers = () => {
     setIsModalVisible(true);
   };
 
-  const handleCancel = () => {
+  const handleCancel = () =>
+  {
     setIsModalVisible(false);
   };
 
-  const handleFinish = async (values) => {
+  const handleFinish = async (values) =>
+  {
     const driverData = {
       driver_id: {
         type: values.driver_id_type,
@@ -81,28 +91,35 @@ const Drivers = () => {
       vehicle_id: values.vehicle_id,
     };
 
-    try {
-      if (isEditing) {
-        await axios.put(`http://102.133.144.226:8000/api/v1/driver/${editingDriver._id}`, driverData);
+    try
+    {
+      if (isEditing)
+      {
+        await axios.put(`http://102.133.144.226:8000/api/v1/driver/${ editingDriver._id }`, driverData);
         message.success('Driver updated successfully.');
-      } else {
+      } else
+      {
         await axios.post('http://102.133.144.226:8000/api/v1/driver', driverData);
         message.success('Driver added successfully.');
       }
       fetchData();
       setIsModalVisible(false);
-    } catch (error) {
+    } catch (error)
+    {
       message.error('Error submitting form. Please try again later.');
       console.error('Error submitting form:', error);
     }
   };
 
-  const handleDelete = async (driverId) => {
-    try {
-      await axios.delete(`http://102.133.144.226:8000/api/v1/driver/${driverId}`);
+  const handleDelete = async (driverId) =>
+  {
+    try
+    {
+      await axios.delete(`http://102.133.144.226:8000/api/v1/driver/${ driverId }`);
       message.success('Driver deleted successfully.');
       fetchData();
-    } catch (error) {
+    } catch (error)
+    {
       message.error('Error deleting driver. Please try again later.');
       console.error('Error deleting driver:', error);
     }
@@ -120,11 +137,11 @@ const Drivers = () => {
       key: 'license_number',
       render: (_, record) => record.driver_id?.number,
     },
-    {
-      title: 'Country Code',
-      dataIndex: 'country_code',
-      key: 'country_code',
-    },
+    // {
+    //   title: 'Country Code',
+    //   dataIndex: 'country_code',
+    //   key: 'country_code',
+    // },
     {
       title: 'Phone Number',
       dataIndex: 'number',
@@ -155,7 +172,7 @@ const Drivers = () => {
       title: 'Photo',
       dataIndex: 'photo',
       key: 'photo',
-      render: (photo) => <img src={photo} alt="Driver" style={{ width: 50, height: 50 }} />,
+      render: (photo) => <img src={photo} alt="Photo" style={{ width: 50, height: 50 }} />,
     },
     {
       title: 'Actions',
@@ -173,14 +190,14 @@ const Drivers = () => {
 
   return (
     <div>
-      <Button type="primary" onClick={handleAdd} style={{ marginBottom: 16 }}>
+      {/* <Button type="primary" onClick={handleAdd} style={{ marginBottom: 16 }}>
         Add Driver
-      </Button>
-      <Table 
-        columns={columns} 
-        dataSource={data} 
-        loading={loading} 
-        rowKey={(record) => record._id} 
+      </Button> */}
+      <Table
+        columns={columns}
+        dataSource={data}
+        loading={loading}
+        rowKey={(record) => record._id}
       />
       <Modal
         title={isEditing ? "Edit Driver" : "Add Driver"}

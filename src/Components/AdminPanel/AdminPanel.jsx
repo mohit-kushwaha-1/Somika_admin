@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout, Menu, Avatar, Button } from 'antd';
-import {
+import
+{
     UserOutlined, DashboardOutlined, TeamOutlined, CarOutlined,
     EnvironmentOutlined, CarryOutOutlined, FormOutlined,
     HomeOutlined, WarningOutlined
@@ -35,22 +36,40 @@ import UserAccess from './UserAccess';
 import '../Styles/AdminPanel.css';
 import yourLogo from '../Assets/logo (1) 2.svg';
 import CountryCode from '../Masters/CountryCode';
+import { icons } from 'antd/es/image/PreviewGroup';
 
 const { Header, Sider, Content } = Layout;
 
-const AdminPanel = () => {
+const AdminPanel = () =>
+{
     const navigate = useNavigate();
-    const handleLogout = () => {
-        localStorage.removeItem('authToken'); 
-        navigate('/login');  
-      };
+    const [userAccess, setUserAccess] = useState([]);
+
+
+    useEffect(() =>
+    {
+        const userData = JSON.parse(localStorage.getItem('user'));
+        if (userData && userData.access)
+        {
+            setUserAccess(userData.access);
+        }
+    }, []);
+
+    const handleLogout = () =>
+    {
+        localStorage.removeItem('authToken');
+        navigate('/login');
+    };
     const [selectedTab, setSelectedTab] = useState('dashboard');
-    const handleMenuClick = (e) => {
+    const handleMenuClick = (e) =>
+    {
         setSelectedTab(e.key);
     };
 
-    const renderContent = () => {
-        switch (selectedTab) {
+    const renderContent = () =>
+    {
+        switch (selectedTab)
+        {
             case 'dashboard':
                 return <ProfileDetail />;
             case 'user-access':
@@ -102,23 +121,49 @@ const AdminPanel = () => {
             case 'brand':
                 return <Brand />;
             case 'country-code':
-                return <CountryCode/>;
+                return <CountryCode />;
             default:
                 return <Employees />;
         }
     };
 
+    // Check if the user has "all" access
+    const hasAllAccess = userAccess.includes('all');
+    // If "all" is in access, show all menu items
+
+
+
+
+    // Access options mapping with corresponding menu items
+    const accessOptionsMap = {
+        'employee': { key: 'employees', icon: <TeamOutlined />, label: 'Employees' },
+        'driver': { key: 'driver', icon: <CarOutlined />, label: 'Driver' },
+        'vehicle': { key: 'vehicle', icon: <CarOutlined />, label: 'Vehicle' },
+        'trip': { key: 'trips', icon: <EnvironmentOutlined />, label: 'Trip' },
+        'courier': { key: 'couriers', icon: <CarryOutOutlined />, label: 'Courier' },
+        'request': { key: 'requests', icon: <FormOutlined />, label: 'Request' },
+        'base location': { key: 'base-location-reporting', icon: <HomeOutlined />, label: 'Location' },
+        'exception report': { key: 'exception-report', icon: <WarningOutlined />, label: 'Exception Report' },
+        'master card': { key: 'master-card', icon: <TeamOutlined />, label: 'Setups' },
+        'user-access': { key: 'user-access', icon: <TeamOutlined />, label: 'User Access' }
+    };
+    // <Menu.Item key="user-access" icon={<TeamOutlined />}>
+    //     User Access
+    // </Menu.Item>
+    const menuItems = hasAllAccess
+        ? Object.values(accessOptionsMap)
+        : userAccess.map(access => accessOptionsMap[access.toLowerCase()]);
     return (
         <Layout style={{ minHeight: '100vh', maxWidth: '100vw' }}>
             <Header className="header">
                 <div className='logo-vinMart'>
                     <img src={yourLogo} alt="VinMart Logo" />
                 </div>
-                <div className="profile-section">
+                {/* <div className="profile-section">
                     <Avatar size={40} icon={<UserOutlined />} />
                     <span className="profile-name">Somika</span>
                 </div>
-                
+                 */}
                 <Button type='primary' onClick={handleLogout}>Logout</Button>
             </Header>
             <Layout>
@@ -132,7 +177,7 @@ const AdminPanel = () => {
                         <Menu.Item key="dashboard" icon={<DashboardOutlined />}>
                             Dashboard
                         </Menu.Item>
-                        <Menu.Item key="employees" icon={<TeamOutlined />}>
+                        {/* <Menu.Item key="employees" icon={<TeamOutlined />}>
                             Employees
                         </Menu.Item>
                         <Menu.Item key="driver" icon={<CarOutlined />}>
@@ -151,7 +196,7 @@ const AdminPanel = () => {
                             Request
                         </Menu.Item>
                         <Menu.Item key="base-location-reporting" icon={<HomeOutlined />}>
-                            Base Location
+                            Location
                         </Menu.Item>
                         <Menu.Item key="exception-report" icon={<WarningOutlined />}>
                             Exception Report
@@ -161,7 +206,12 @@ const AdminPanel = () => {
                         </Menu.Item>
                         <Menu.Item key="user-access" icon={<TeamOutlined />}>
                             User Access
-                        </Menu.Item>
+                        </Menu.Item> */}
+                        {menuItems.map((menuItem) => (
+                            <Menu.Item key={menuItem?.key} icon={menuItem?.icon}>
+                                {menuItem?.label}
+                            </Menu.Item>
+                        ))}
                     </Menu>
                 </Sider>
                 <Layout style={{ padding: '24px' }}>

@@ -1,23 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { Table } from 'antd';
 
-const BaseLocationReporting = () => {
+const BaseLocationReporting = () =>
+{
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  useEffect(() =>
+  {
     fetchBaseLocations();
   }, []);
 
-  const fetchBaseLocations = async () => {
-    try {
+  const fetchBaseLocations = async () =>
+  {
+    try
+    {
       const response = await fetch('http://102.133.144.226:8000/api/v1/companies/getAllBaseLocations');
       const result = await response.json();
 
-      console.log('API Response:', result); 
+      console.log('API Response:', result);
 
- 
-      const baseLocations = result.getAllBaseLocations.map(item => {
+
+      const baseLocations = result.getAllBaseLocations.map(item =>
+      {
         const { BaseDetails, locations } = item.Base;
         return {
           key: BaseDetails._id,
@@ -30,8 +35,9 @@ const BaseLocationReporting = () => {
 
       setData(baseLocations);
       setLoading(false);
-    } catch (error) {
-      console.error('Error fetching base locations:', error);
+    } catch (error)
+    {
+      console.error('Error fetching Locations:', error);
       setLoading(false);
     }
   };
@@ -61,12 +67,12 @@ const BaseLocationReporting = () => {
 
   return (
     <div>
-      {/* <h2>Base Location Reporting</h2>  */}
-      <Table 
-        columns={columns} 
-        dataSource={data} 
-        loading={loading} 
-        rowKey="key" 
+      {/* <h2>Location Reporting</h2>  */}
+      <Table
+        columns={columns}
+        dataSource={data}
+        loading={loading}
+        rowKey="key"
       />
     </div>
   );

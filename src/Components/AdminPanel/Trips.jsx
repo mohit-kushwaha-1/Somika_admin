@@ -1,17 +1,3 @@
-// import React from 'react'
-
-// const Trips = () => {
-//   return (
-//     <div>
-//       <h2>Trip Details</h2>
-//     </div>
-//   )
-// }
-
-// export default Trips
-
-
-
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input, InputNumber } from 'antd';
 import axios from 'axios';

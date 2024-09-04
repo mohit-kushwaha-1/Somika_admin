@@ -66,12 +66,12 @@ const CompanyMaster = () =>
   {
     const postData = {
       name: values.name,
+      is_type: 0,  // Make sure to include this field
       address: values.address,
       location: {
         type: 'Point',
         coordinates: [values.longitude, values.latitude],
       },
-      is_type: 0,  // Make sure to include this field
     };
 
     try
@@ -168,11 +168,11 @@ const CompanyMaster = () =>
       key: 'longitude',
       render: (_, record) => record.location.coordinates.coordinates[0],
     },
-    {
-      title: 'Type',
-      dataIndex: 'is_type',
-      key: 'is_type',
-    },
+    // {
+    //   title: 'Type',
+    //   dataIndex: 'is_type',
+    //   key: 'is_type',
+    // },
     {
       title: 'Actions',
       key: 'actions',

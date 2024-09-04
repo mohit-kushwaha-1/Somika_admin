@@ -323,11 +323,11 @@ const BaseLocationReporting = () => {
       dataIndex: 'name',
       key: 'name',
     },
-    {
-      title: 'Type',
-      dataIndex: 'is_type',
-      key: 'is_type',
-    },
+    // {
+    //   title: 'Type',
+    //   dataIndex: 'is_type',
+    //   key: 'is_type',
+    // },
     {
       title: 'Address',
       dataIndex: 'address',

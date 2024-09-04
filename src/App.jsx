@@ -33,13 +33,13 @@ const App = () =>
   return (
     <Router>
       <Routes>
-        {/* Redirect root path to login page */}
+       
         <Route path="/" element={<Navigate to="/login" />} />
 
-        {/* Login route */}
+  
         <Route path="/login" element={<Login />} />
 
-        {/* Protected routes */}
+       
         <Route
           path="/admin"
           element={

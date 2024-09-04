@@ -66,7 +66,7 @@ const CompanyMaster = () =>
   {
     const postData = {
       name: values.name,
-      is_type: 0,  // Make sure to include this field
+      is_type: 0,  
       address: values.address,
       location: {
         type: 'Point',
@@ -106,7 +106,7 @@ const CompanyMaster = () =>
         type: 'Point',
         coordinates: [values.longitude, values.latitude],
       },
-      is_type: values.is_type,  // Make sure to include this field
+      is_type: values.is_type,  
     };
 
     try
@@ -203,16 +203,7 @@ const CompanyMaster = () =>
         onCancel={() => setIsModalOpen(false)}
         footer={null}
       >
-        {/* <Form
-          initialValues={editingCompany ? {
-            name: editingCompany.name,
-            address: editingCompany.address,
-            latitude: editingCompany.location.coordinates.coordinates[1],
-            longitude: editingCompany.location.coordinates.coordinates[0],
-            is_type: editingCompany.is_type,
-          } : {}}
-          onFinish={handleSubmit}
-        > */}
+       
 
         <Form
           initialValues={editingCompany ? {
@@ -220,7 +211,7 @@ const CompanyMaster = () =>
             address: editingCompany.address,
             latitude: editingCompany.location.coordinates.coordinates[1],
             longitude: editingCompany.location.coordinates.coordinates[0],
-            is_type: editingCompany.is_type, // Ensure this is set
+            is_type: editingCompany.is_type,
           } : {}}
           onFinish={handleSubmit}
         >
@@ -253,14 +244,6 @@ const CompanyMaster = () =>
           >
             <Input />
           </Form.Item>
-          {/* <Form.Item
-            name="is_type"
-            label="Type"
-            rules={[{ required: true, message: 'Please select the type!' }]}
-          >
-            <Input />
-          </Form.Item> */}
-
           <Form.Item
             name="is_Type"
             label="Type"

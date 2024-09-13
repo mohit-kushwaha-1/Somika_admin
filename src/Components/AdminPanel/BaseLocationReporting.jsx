@@ -218,7 +218,7 @@
 
 
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, message, Select } from 'antd';
+import { Table, Button, Modal, Form, Input, message, Select ,Switch} from 'antd';
 
 const { Option } = Select;
 
@@ -253,6 +253,7 @@ const BaseLocationReporting = () => {
       });
 
       setData(baseLocations);
+      // console.log("base",baseLocations);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching Locations:', error);
@@ -286,7 +287,10 @@ const BaseLocationReporting = () => {
   };
 
   const handleSubmit = async (values) => {
-    const { name, is_type, address, latitude, longitude, status } = values;
+    
+    const is_type = 1;
+    const status = "Active";
+    const { name, address, latitude, longitude } = values;
     const method = editingLocation ? 'PATCH' : 'POST';
     const url = editingLocation
       ? `http://102.133.144.226:8000/api/v1/companies/${editingLocation.key}`
@@ -347,6 +351,7 @@ const BaseLocationReporting = () => {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
+     
     },
     {
       title: 'Actions',
@@ -354,7 +359,7 @@ const BaseLocationReporting = () => {
       render: (text, record) => (
         <>
           <Button type="link" onClick={() => handleEdit(record)} style={{ marginRight: 8 }}>Edit</Button>
-          <Button type="link" onClick={() => handleDelete(record.key)}>Delete</Button>
+          {/* <Button type="link" onClick={() => handleDelete(record.key)}>Delete</Button> */}
         </>
       ),
     },
@@ -362,7 +367,7 @@ const BaseLocationReporting = () => {
 
   return (
     <div>
-      <Button type="primary" onClick={handleAdd} style={{ marginBottom: 16 }}>Add Base Location</Button>
+      <Button type="primary" onClick={handleAdd} style={{ marginBottom: 16 }}>Add Location</Button>
       <Table
         columns={columns}
         dataSource={data}
@@ -387,13 +392,13 @@ const BaseLocationReporting = () => {
           >
             <Input />
           </Form.Item>
-          <Form.Item
+          {/* <Form.Item
             name="is_type"
             label="Type"
             rules={[{ required: true, message: 'Please input the type!' }]}
           >
             <Input type="number" />
-          </Form.Item>
+          </Form.Item> */}
           <Form.Item
             name="address"
             label="Address"
@@ -415,7 +420,7 @@ const BaseLocationReporting = () => {
           >
             <Input />
           </Form.Item>
-          <Form.Item
+          {/* <Form.Item
             name="status"
             label="Status"
           >
@@ -423,7 +428,7 @@ const BaseLocationReporting = () => {
               <Option value="Active">Active</Option>
               <Option value="Inactive">Inactive</Option>
             </Select>
-          </Form.Item>
+          </Form.Item> */}
           <Form.Item>
             <Button type="primary" htmlType="submit">
               {editingLocation ? 'Update' : 'Add'}

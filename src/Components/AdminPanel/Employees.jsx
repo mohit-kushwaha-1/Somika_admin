@@ -749,12 +749,14 @@ const Employees = () => {
     try {
       const response = await fetch('http://102.133.144.226:8000/api/v1/users/getAllUser');
       const result = await response.json();
+      console.log("result is",result);
       if (result.success) {
         const employees = result.data.map(item => ({
           key: item._id,
           ...item
         }));
         setData(employees);
+        // console.log(employees);
       } else {
         message.error('Failed to fetch employee data.');
       }
@@ -774,6 +776,7 @@ const Employees = () => {
 
       const companiesResponse = await fetch('http://102.133.144.226:8000/api/v1/companies');
       const companiesResult = await companiesResponse.json();
+      // console.log("companies",companiesResult)
       setCompanies(companiesResult);
 
       const departmentsResponse = await fetch('http://102.133.144.226:8000/api/v1/department');
@@ -783,6 +786,7 @@ const Employees = () => {
       const countryCodesResponse = await fetch('http://102.133.144.226:8000/api/v1/countryCode');
       const countryCodesResult = await countryCodesResponse.json();
       setCountryCodes(countryCodesResult);
+      console.log("country",countryCodesResult);
     } catch (error) {
       console.error('Error fetching dropdown data:', error);
       message.error('Error fetching dropdown data.');
@@ -812,21 +816,22 @@ const Employees = () => {
 
   const handleStatusToggle = async (record) => {
     const updatedStatus = record.status === 'Active' ? 'Inactive' : 'Active';
-    const updatedData = { ...record, status: updatedStatus };
-
+    const updatedData = { status: updatedStatus }; // Only send the status in the request body
+  
     try {
-      const response = await fetch(`http://102.133.144.226:8000/api/v1/users/createUserByAdmin/${record.key}`, {
-        method: 'PUT',
+      const response = await fetch(`http://102.133.144.226:8000/api/v1/users/${record._id}/status`, {
+        method: 'PATCH', 
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updatedData),
+        // body: JSON.stringify(updatedData),
       });
-
+  
       const result = await response.json();
-      if (result.success) {
-        fetchEmployees();
-        message.success(`Employee status updated to ${updatedStatus}!`);
+      console.log("result sdf df",result);
+      if (result.message) {
+        fetchEmployees(); // Reload employee data
+        message.success(`Employee status updated `);
       } else {
         message.error('Failed to update employee status.');
       }
@@ -835,6 +840,7 @@ const Employees = () => {
       console.error('Error updating employee status:', error);
     }
   };
+  
 
   const handleSubmit = async (values) => {
     if (editingEmployee) {
@@ -870,8 +876,8 @@ const Employees = () => {
 
   const handlePut = async (values) => {
     try {
-      const response = await fetch(`http://102.133.144.226:8000/api/v1/users/createUserByAdmin/${editingEmployee.key}`, {
-        method: 'PUT',
+      const response = await fetch(`http://102.133.144.226:8000/api/v1/users/updateUser/${editingEmployee.key}`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -879,7 +885,8 @@ const Employees = () => {
       });
 
       const result = await response.json();
-      if (result.success) {
+      // console.log("result is ",result.message);
+      if (result.message === "User updated successfully") {
         fetchEmployees();
         message.success('Employee updated successfully!');
         setIsModalOpen(false);
@@ -918,7 +925,7 @@ const Employees = () => {
       key: 'status',
       render: (_, record) => (
         <Switch
-          checked={record.status === 'Active'}
+          // checked={record.status === 'Active'}
           onChange={() => handleStatusToggle(record)}
           checkedChildren="Active"
           unCheckedChildren="Inactive"
@@ -972,15 +979,17 @@ const Employees = () => {
             name="name"
             label="Name"
             rules={[{ required: true, message: 'Please input the name!' }]}
+            
           >
-            <Input />
+            <Input  placeholder="Enter Name"/>
           </Form.Item>
           <Form.Item
             name="company"
             label="Company"
             rules={[{ required: true, message: 'Please select the company!' }]}
+            placeholder="Enter Name"
           >
-            <Select>
+            <Select placeholder="Enter Company Name">
               {companies.map(company => (
                 <Option key={company._id} value={company._id}>{company.name}</Option>
               ))}
@@ -991,7 +1000,7 @@ const Employees = () => {
             label="Department"
             rules={[{ required: true, message: 'Please select the department!' }]}
           >
-            <Select>
+            <Select placeholder="Enter Department ">
               {departments.map(department => (
                 <Option key={department._id} value={department._id}>{department.name}</Option>
               ))}
@@ -1002,7 +1011,7 @@ const Employees = () => {
             label="Location"
             rules={[{ required: true, message: 'Please select the location!' }]}
           >
-            <Select>
+            <Select placeholder="Enter Location">
               {baseDetails.map(location => (
                 <Option key={location._id} value={location._id}>{location.name}</Option>
               ))}
@@ -1013,7 +1022,7 @@ const Employees = () => {
             label="Employee ID"
             rules={[{ required: true, message: 'Please input the employee ID!' }]}
           >
-            <Input />
+            <Input  placeholder="Enter Employee ID"/>
           </Form.Item>
           <div className='mobile_code'>
 
@@ -1022,9 +1031,9 @@ const Employees = () => {
             label="Country Code"
             rules={[{ required: true, message: 'Please select the country code!' }]}
           >
-            <Select>
+            <Select placeholder="Enter Country Code">
               {countryCodes.map(code => (
-                <Option key={code._id} value={code._id}>{code.name}</Option>
+                <Option key={code._id} value={code._id}>{code.code}</Option>
               ))}
             </Select>
           </Form.Item>
@@ -1033,7 +1042,7 @@ const Employees = () => {
             label="Mobile"
             rules={[{ required: true, message: 'Please input the mobile number!' }]}
           >
-            <Input />
+            <Input  placeholder="Enter Mobile Number"/>
           </Form.Item>
           </div>
           <Form.Item
@@ -1041,7 +1050,7 @@ const Employees = () => {
             label="Email"
             rules={[{ required: true, message: 'Please input the email!' }]}
           >
-            <Input />
+            <Input placeholder="Enter Email"/>
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">

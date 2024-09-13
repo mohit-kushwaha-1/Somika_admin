@@ -31,6 +31,28 @@ const Vehicle = () => {
     try {
       const response = await axios.get('http://102.133.144.226:8000/api/v1/vehicles');
       setData(response.data);
+      console.log("responce data",response.data);
+
+      const base = await axios.get("http://102.133.144.226:8000/api/v1/companies/getAllBaseLocations")
+      console.log("base",base?.data?.getAllBaseLocations[0].Base.BaseDetails.name);
+
+      const a = base?.data?.getAllBaseLocations.map((item)=>{
+              return item.Base.BaseDetails.name
+      })
+
+
+    const b =   response.data.forEach((vehicle, index) => {
+        if (a[index]) {
+          vehicle.base_location = a[index];  
+        } else {
+          vehicle.base_location = "Default Location";  
+        }
+      });
+
+      setBaseLocations(a)
+      console.log("b is ",b);
+
+      console.log("a is ",a);
     } catch (error) {
       message.error('Error fetching vehicles. Please try again later.');
       console.error('Error fetching vehicles:', error);
@@ -93,6 +115,15 @@ const Vehicle = () => {
       return;
     }
     setEditingVehicle(record);
+      
+    const dataToSend = {
+      allowed_locations: {
+        location: record.allowed_locations
+      }
+    };
+
+
+    console.log("data to send",dataToSend)
     form.setFieldsValue({
       vehicle_id: record.vehicle_id || '',
       vehicle_number: record.vehicle_number || '',
@@ -102,7 +133,7 @@ const Vehicle = () => {
       mobile: record.mobile || '',
       country_code: record.country_code?._id || '',
       base_location: record.base_location?._id || '',
-      allowed_locations: record.allowed_locations || '',
+      allowed_locations: dataToSend || '',
       status: record.status === 'Active',
     });
 
@@ -115,7 +146,41 @@ const Vehicle = () => {
     setIsModalVisible(false);
   };
 
+
+  const handleStatusToggle = async (record) => {
+    const updatedStatus = record.status === 'Active' ? 'Inactive' : 'Active';
+    const updatedData = { status: updatedStatus }; // Only send the status in the request body
+  
+    try {
+      const response = await fetch(`http://102.133.144.226:8000/api/v1/users/${record._id}/status`, {
+        method: 'PATCH', 
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // body: JSON.stringify(updatedData),
+      });
+  
+      const result = await response.json();
+      console.log("result sdf df",result);
+      if (result.message) {
+        fetchData(); // Reload employee data
+        message.success(`Vehicle status updated `);
+      } else {
+        message.error('Failed to update Vehicle status.');
+      }
+    } catch (error) {
+      message.error('Error updating Vehicle status.');
+      console.error('Error updating Vehicle status:', error);
+    }
+  };
+
   const handleFinish = async (values) => {
+    
+    const dataToSend =  {
+        location: values.allowed_locations
+      }
+    
+
     const vehicleData = {
       vehicle_id: values.vehicle_id,
       vehicle_number: values.vehicle_number,
@@ -125,7 +190,7 @@ const Vehicle = () => {
       mobile: values.mobile,
       country_code: values.country_code,
       base_location: values.base_location,
-      allowed_locations: values.allowed_locations,
+      allowed_locations: dataToSend,
       status: values.status ? 'Active' : 'Inactive',
       vehicle_image: values.vehicle_image ? values.vehicle_image.file.originFileObj : undefined,
     };
@@ -172,39 +237,47 @@ const Vehicle = () => {
       dataIndex: ['brand_make', 'name'],
       key: 'brand_make.name',
     },
-    {
-      title: 'Country Code',
-      dataIndex: ['country_code', 'code'],
-      key: 'country_code.code',
-    },
-    {
-      title: 'Mobile',
-      dataIndex: 'mobile',
-      key: 'mobile',
-    },
+    // {
+    //   title: 'Country Code',
+    //   dataIndex: ['country_code', 'code'],
+    //   key: 'country_code.code',
+    // },
+    // {
+    //   title: 'Mobile',
+    //   dataIndex: 'mobile',
+    //   key: 'mobile',
+    // },
 
     {
       title: 'Base Location',
       dataIndex: 'base_location',
       key: 'base_location',
-      render: (base_location) => base_location?.label || 'N/A',
+      // render: (base_location) => base_location?.label,
     },
     {
       title: 'Allowed Location',
-      dataIndex: ['allowed_locations', 'label'],
-      key: 'allowed_locations.label',
-      render: (allowed_locations) => allowed_locations?.label || 'N/A'
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status) => (
-        <Tag color={status === 'Active' ? 'green' : 'red'}>
-          {/* {status} */}
-        </Tag>
-      ),
-    },
+      key: 'allowed_locations',
+      render: (record) => {
+        // Check if allowed_locations and location array exist
+        if (record.allowed_locations?.location ) {
+          return record.allowed_locations.location
+            .map((loc) => loc?.companyId?.name || 'N/A')
+            .join(', '); // Join the names with commas if multiple
+        }
+        return 'N/A'; // Return 'N/A' if no locations available
+      }
+    }
+    ,
+    // {
+    //   title: 'Status',
+    //   dataIndex: 'status',
+    //   key: 'status',
+    //   render: (status) => (
+    //     <Tag color={status === 'Active' ? 'green' : 'red'}>
+    //       {/* {status} */}
+    //     </Tag>
+    //   ),
+    // },
     {
       title: 'Actions',
       key: 'actions',
@@ -214,8 +287,8 @@ const Vehicle = () => {
             Edit
           </Button>
           <Switch
-            checked={record.status === 'Active'}
-            onChange={(checked) => handleStatusChange(record._id, checked)}
+            // checked={record.status === 'Active'}
+            onChange={() => handleStatusToggle(record)}
             checkedChildren="Active"
             unCheckedChildren="Inactive"
           />
@@ -307,7 +380,7 @@ const Vehicle = () => {
               ))}
             </Select>
           </Form.Item>
-          <Form.Item
+          {/* <Form.Item
             label="Country Code"
             name="country_code"
             rules={[{ required: true, message: 'Please select the country code!' }]}
@@ -319,17 +392,17 @@ const Vehicle = () => {
                 </Option>
               ))}
             </Select>
-          </Form.Item>
-          <Form.Item
+          </Form.Item> */}
+          {/* <Form.Item
             label="Mobile"
             name="mobile"
             rules={[{ required: true, message: 'Please input the mobile number!' }]}
           >
             <Input placeholder='9479999999' />
-          </Form.Item>
+          </Form.Item> */}
 
           <Form.Item
-            label="Base Location"
+            label="Add Location"
             name="base_location"
             rules={[{ required: true, message: 'Please select the base location!' }]}
           >
@@ -372,13 +445,13 @@ const Vehicle = () => {
               <Button icon={<UploadOutlined />}>Upload Vehicle Image</Button>
             </Upload>
           </Form.Item>
-          <Form.Item
+          {/* <Form.Item
             label="Status"
             name="status"
             valuePropName="checked"
           >
             <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
-          </Form.Item>
+          </Form.Item> */}
           <Form.Item>
             <Button type="primary" htmlType="submit">
               {isEditing ? 'Update Vehicle' : 'Add Vehicle'}

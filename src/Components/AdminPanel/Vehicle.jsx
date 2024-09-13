@@ -148,11 +148,11 @@ const Vehicle = () => {
 
 
   const handleStatusToggle = async (record) => {
-    const updatedStatus = record.status === 'Active' ? 'Inactive' : 'Active';
+    const updatedStatus = record.status === "Active" ? 'Inactive' : 'Active';
     const updatedData = { status: updatedStatus }; // Only send the status in the request body
   
     try {
-      const response = await fetch(`http://102.133.144.226:8000/api/v1/users/${record._id}/status`, {
+      const response = await fetch(`http://102.133.144.226:8000/api/v1/vehicles/${record._id}/status`, {
         method: 'PATCH', 
         headers: {
           'Content-Type': 'application/json',
@@ -254,44 +254,42 @@ const Vehicle = () => {
       key: 'base_location',
       // render: (base_location) => base_location?.label,
     },
-    {
-      title: 'Allowed Location',
-      key: 'allowed_locations',
-      render: (record) => {
-        // Check if allowed_locations and location array exist
-        if (record.allowed_locations?.location ) {
-          return record.allowed_locations.location
-            .map((loc) => loc?.companyId?.name || 'N/A')
-            .join(', '); // Join the names with commas if multiple
-        }
-        return 'N/A'; // Return 'N/A' if no locations available
-      }
-    }
-    ,
     // {
-    //   title: 'Status',
-    //   dataIndex: 'status',
-    //   key: 'status',
-    //   render: (status) => (
-    //     <Tag color={status === 'Active' ? 'green' : 'red'}>
-    //       {/* {status} */}
-    //     </Tag>
-    //   ),
-    // },
+    //   title: 'Allowed Location',
+    //   key: 'allowed_locations',
+    //   render: (record) => {
+    //     // Check if allowed_locations and location array exist
+    //     if (record.allowed_locations?.location ) {
+    //       return record.allowed_locations.location
+    //         .map((loc) => loc?.companyId?.name || 'N/A')
+    //         .join(', '); // Join the names with commas if multiple
+    //     }
+    //     return 'N/A'; // Return 'N/A' if no locations available
+    //   }
+    // }
+    // ,
+    // {
+      {
+        title: 'Status',
+        key: 'status',
+        render: (_, record) => (
+          <Switch
+            checked={record.status === "Active"}
+            onChange={() => handleStatusToggle(record)}
+            checkedChildren="Active"
+            unCheckedChildren="Inactive"
+          />
+        ),
+      },
     {
       title: 'Actions',
       key: 'actions',
       render: (_, record) => (
         <>
-          <Button type="link" onClick={() => handleEdit(record)}>
-            Edit
+          <Button  onClick={() => handleEdit(record)}>
+            Update
           </Button>
-          <Switch
-            // checked={record.status === 'Active'}
-            onChange={() => handleStatusToggle(record)}
-            checkedChildren="Active"
-            unCheckedChildren="Inactive"
-          />
+          
         </>
       ),
     },

@@ -431,12 +431,12 @@ const Trips = () => {
             <Tr>
               <Th>Employee name</Th>
               <Th ml={"30px"}>Email</Th>
-              <Th>BoardingPoint name</Th>
-              <Th>DestinationPoint name</Th>
+              <Th>Boarding Point </Th>
+              <Th>Destination Point</Th>
               <Th>Start Time</Th>
               {/* <Th>End Time</Th> */}
               <Th>Status</Th>
-              <Th>Approve</Th>
+              <Th>Action</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -486,7 +486,7 @@ const Trips = () => {
                       <Td>{item?.employeeId?.email}</Td>
                       <Td>{item?.boardingPoint?.companyId?.name}</Td>
                       <Td>{item?.destinationPoint?.companyId?.name}</Td>
-                      <Th>
+                      <Td>
                         {new Date(starttime).toLocaleString("en-US", {
                           // year: "numeric",
                           month: "long",
@@ -495,10 +495,10 @@ const Trips = () => {
                           minute: "numeric",
                           hour12: true,
                         })}
-                      </Th>
+                      </Td>
                       {/* <Th>{item.endTime}</Th> */}
-                      <Th>{item.status}</Th>
-                      <Th>
+                      <Td>{item.status}</Td>
+                      <Td>
                         <Button
                           onClick={() => {
                             handleSubmit(
@@ -508,20 +508,20 @@ const Trips = () => {
                             );
                           }}
                         >
-                          View
+                          Update
                         </Button>
                         <Modal isOpen={isOpen} onClose={onClose}>
                           <ModalOverlay />
                           <ModalContent>
-                            <ModalHeader>Modal Title</ModalHeader>
+                            <ModalHeader>Update Request</ModalHeader>
                             <ModalCloseButton />
                             <ModalBody>
                               <Flex>
                                 <Box mr={"20px"}>
                                   <Text color={"black"}>Name</Text>
                                   <Text color={"black"}>Email</Text>
-                                  <Text color={"black"}>BoardingPoint</Text>
-                                  <Text color={"black"}>DestinationPoint</Text>
+                                  <Text color={"black"}>Boarding Point</Text>
+                                  <Text color={"black"}>Destination Point</Text>
                                   <Text color={"black"}>StartTime</Text>
                                   {/* DestinationPoint name */}
                                 </Box>
@@ -566,7 +566,7 @@ const Trips = () => {
                                           <Flex>
                                             <Box mr={"20px"}>
                                               <Text mr={"5px"}>
-                                                vehicle Number
+                                                Vehicle Number
                                               </Text>
                                               <Text color={"green"}>
                                                 {item?.cab?.vehicle_number}
@@ -629,7 +629,7 @@ const Trips = () => {
                             </ModalFooter>
                           </ModalContent>
                         </Modal>
-                      </Th>
+                      </Td>
                     </Tr>
                   </>
                 );

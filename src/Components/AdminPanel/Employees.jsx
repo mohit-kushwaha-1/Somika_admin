@@ -925,7 +925,7 @@ const Employees = () => {
       key: 'status',
       render: (_, record) => (
         <Switch
-          // checked={record.status === 'Active'}
+          checked={record.status === 1}
           onChange={() => handleStatusToggle(record)}
           checkedChildren="Active"
           unCheckedChildren="Inactive"

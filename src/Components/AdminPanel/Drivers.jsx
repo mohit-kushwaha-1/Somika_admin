@@ -295,7 +295,7 @@ const Drivers = () => {
   };
 
   const handleStatusToggle = async (record) => {
-    const updatedStatus = record.status === "Active" ? "Inactive" : "Active";
+    const updatedStatus = record.status === 1 ? "Active" : "Inactive";
     const updatedData = { status: updatedStatus }; // Only send the status in the request body
 
     try {
@@ -314,7 +314,7 @@ const Drivers = () => {
       // console.log("result sdf df", result);
       if (result.message) {
         fetchData(); // Reload employee data
-        message.success(`Driver status updated `);
+        // message.success(`Driver status updated `);
       } else {
         message.error("Failed to update Driver status.");
       }
@@ -418,10 +418,10 @@ const Drivers = () => {
             Edit
           </Button>
           <Switch
-            // checked={record.status === "Active"}
-            onChange={() => handleStatusToggle(record)}
-            checkedChildren="Inactive"
-            unCheckedChildren="Active"
+              checked={record.status === 1}
+              onChange={() => handleStatusToggle(record)}
+              checkedChildren="Active"
+              unCheckedChildren="Inactive"
           />
         </div>
       ),

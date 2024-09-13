@@ -4,6 +4,8 @@ import { Box, Input, Text, Button, Flex,FormLabel } from "@chakra-ui/react";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { LoadScript } from "@react-google-maps/api";
 
+
+
 const googleMapsApiKey = "AIzaSyBPnipzrKgRKIcHt1Bh_4xy1fZi7FUdUYs";
 
 const Airportport = () => {
@@ -114,7 +116,7 @@ const Airportport = () => {
         >
           <Text fontSize="15px">Select starting point</Text>
           <Button h="30px" onClick={() => handleModalOpen("start")}>
-            MapView
+            Map View
           </Button>
         </Flex>
 

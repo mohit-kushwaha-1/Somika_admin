@@ -35,6 +35,7 @@ const Drivers = () => {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [vehicleData, setVehicleData] = useState(null);
   const [record1, setRecord] = useState();
+  const[changeVehicledata,setChangeVehicleData] = useState();
 
   const showModal2 = () => {
     setIsModal2Visible(true);
@@ -99,6 +100,7 @@ const Drivers = () => {
   useEffect(() => {
     fetchData();
     fetchVehicles();
+    getAllChangeVehicles();
   }, []);
 
   const fetchData = async () => {
@@ -107,8 +109,11 @@ const Drivers = () => {
       const response = await axios.get(
         "http://102.133.144.226:8000/api/v1/driver"
       );
-      setData(response.data);
-      console.log("response data is", response.data);
+
+      const reversedData = [...response.data].reverse();
+
+      setData(reversedData);
+      console.log("response data is", reversedData);
 
       const response3 = await axios.get(
         "http://102.133.144.226:8000/api/v1/vehicles"
@@ -129,8 +134,10 @@ const Drivers = () => {
       const response = await axios.get(
         "http://102.133.144.226:8000/api/v1/vehicles"
       );
-      setVehicles(response.data);
-      console.log("vihicls alloted is", response.data);
+
+      const reversedData = [...response.data].reverse();
+      setVehicles(reversedData);
+      // console.log("vihicls alloted is", response.data);
 
       const countryCodesResponse = await fetch(
         "http://102.133.144.226:8000/api/v1/countryCode"
@@ -143,7 +150,7 @@ const Drivers = () => {
       const drivers = await fetch("http://102.133.144.226:8000/api/v1/idType");
       const driver1 = await drivers.json();
       setDriverIDTypes(driver1);
-      console.log(driver1[0]._id);
+      // console.log(driver1[0]._id);
       // setCountryCodes(countryCodesResult);
     } catch (error) {
       message.error("Error fetching vehicles. Please try again later.");
@@ -187,7 +194,7 @@ const Drivers = () => {
     console.log(file);
     const formData = new FormData();
     formData.append("image", file.file);
-    console.log(file.file.name);
+    // console.log(file.file.name);
 
     try {
       const response = await axios.post(
@@ -213,19 +220,20 @@ const Drivers = () => {
   };
 
 
-  console.log("image is ",image1);
+  const getAllChangeVehicles = async()=>{
+        try {
+            const response = await axios.get("http://102.133.144.226:8000/api/v1/vehicles/getUnallottedVehicles")
+            console.log("get not alloted vehicles",response?.data.unallottedVehicles);
+            setChangeVehicleData(response?.data.unallottedVehicles)
+        } catch (error) {
+            console.log(error);
+        }
+  }
+
+
+  // console.log("image is ",image1);
   const handleFinish = async (values) => {
-    //   let imageUrl = null;
-
-    // if (values.photo) {
-    //   // Upload the image and get the URL
-    //   imageUrl = uploadImage(values.photo);
-    //   if (!imageUrl) {
-    //     return; // Exit if image upload failed
-    //   }
-    // }
-
-    // console.log("image url is ",imageUrl);
+   
 
     const driverData = {
       driver_id: {
@@ -253,7 +261,7 @@ const Drivers = () => {
           driverData
         );
         message.success("Driver updated successfully.");
-        console.log("respose is",response.data)
+        // console.log("respose is",response.data)
         setPhoto("");
       } else {
         await axios.post(
@@ -281,21 +289,21 @@ const Drivers = () => {
   //   }
   // };
 
-  const handleStatusChange = async (id, status) => {
-    try {
-      await axios.patch(`http://102.133.144.226:8000/api/v1/driver/${id}`, {
-        status: status ? "Active" : "Inactive",
-      });
-      message.success("Driver status updated successfully.");
-      fetchData();
-    } catch (error) {
-      message.error("Error updating driver status. Please try again later.");
-      console.error("Error updating driver status:", error);
-    }
-  };
+  // const handleStatusChange = async (id, status) => {
+  //   try {
+  //     await axios.patch(`http://102.133.144.226:8000/api/v1/driver/${id}`, {
+  //       status: status ? "Active" : "Inactive",
+  //     });
+  //     message.success("Driver status updated successfully.");
+  //     fetchData();
+  //   } catch (error) {
+  //     message.error("Error updating driver status. Please try again later.");
+  //     console.error("Error updating driver status:", error);
+  //   }
+  // };
 
   const handleStatusToggle = async (record) => {
-    const updatedStatus = record.status === 1 ? "Active" : "Inactive";
+    const updatedStatus = record.status === "Active" ? "Inactive" : "Active";
     const updatedData = { status: updatedStatus }; // Only send the status in the request body
 
     try {
@@ -342,6 +350,29 @@ const Drivers = () => {
     }
   };
 
+
+  useEffect(() => {
+    if (editingDriver) {
+      // Populate form fields when editingDriver data is available
+      form.setFieldsValue({
+        name: editingDriver?.name,
+        driver_id_type: editingDriver?.driver_id?.type,
+        driver_id_number: editingDriver?.driver_id?.number,
+        country_code: editingDriver?.country_code,
+        number: editingDriver?.number,
+        alternate_num: editingDriver?.alternate_num,
+        license: editingDriver?.license,
+        address: editingDriver?.address,
+        vehicle_id: editingDriver?.vehicle_id?._id,  // Use _id for vehicle selection
+        status: editingDriver?.status === "Active",  // Set status switch correctly
+      });
+    } else if(!editingDriver) {
+      // Clear form fields when adding a new driver
+      form.resetFields(); 
+    }
+  }, [editingDriver, form]);
+  
+
   const columns = [
     {
       title: "Driver Name",
@@ -373,56 +404,55 @@ const Drivers = () => {
       title: "Rating",
       dataIndex: ["ratings", "rating"],
       key: "rating",
-      render: (_, record) => record.ratings?.rating?.[0]?.rating ?? "N/A",
+      render: (_, record) => record.ratings?.rating?.[0]?.rating ?? "0",
     },
     {
       title: "Photo",
-      // dataIndex: "photo",
       key: "photo",
-      render: (_,record) => (
-        <img src={`http://102.133.144.226:8000/${record?.photo}`} alt="Photo" style={{ width: 50, height: 50 }} />
+      render: (_, record) => (
+        <img
+          src={
+            record?.photo
+              ? `http://102.133.144.226:8000/${record.photo}`
+              : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKgAAACUCAMAAAAwLZJQAAAAMFBMVEXk5ueutLfp6+y2vL6rsbWor7KyuLu6v8LT1tjY29zb3t/Gysze4eLDx8rP09TJzc8ZZtZUAAAD90lEQVR4nO2c246jMAxAickVCPn/v90And22gtaJwWa0OS8jjebhyIlNLs50XaPRaDQajUaj0Wg0Go1G10E3DWGex5hJPgwdgLTSHtD56Kw2Ri/kH9aNvrudKgSnlFYvaK1snO6lGnrzZvkja1yQlvtLjqbe19zi6u4S1fhBc1VVSVqxW8JpP2sumF48qDC/p9B+UK30TE0Iy011Fo1pNFhRZQRNYcR7LjEVE02Y6fkUUy+jCXOZZzadZExLPZXuRTz7YlGlo4DnWO65TFP21J8qNBe4RcHVBHQZfGbToaSCPmMHVk9wlZ5Kj6yiodYzw1pMY90MXTCJcZZOlhBRzsT3tam0hpQvnWpr0wO+CgWUgOYKxeXZBaIo17YECteh77DtSuqr/UOUbffcE0W5FnsDqYpmuNbPgSpqmb6inujJ9bmHmeqpeb5N5bvPd5g+oieI8lT8/0iUaY7Ss14zlSfKPmSDS5Rc8Hk8iRuRPPKOSRR+y6Lk1yzzyPWJ7UB3Im5F2LahQItoz7cLrTob/YHzImegiBo2za7qWPxvQPlGPkPIe6al04P6jxPbZ2kDqs8d+Tb1D9PaUsp91QSpzlTg/qYq8bXlv2KuWz4L3IaW3YE/ELkJB0QzySvayfQWlBZTiQm6UTZNNdfZ2J5p0TTlvVx8AfAxzfEUbdPBtGetnv0g3aJlMcNveJci+6SvvWTact5/HgLhS1CNEx/2H+ZPbZlWqN1pD4DU704ArRz/cukjS4ezfevK1caO4X5dzpkhOW3WWaC1US4JVvgvAEA3BO99mG7a2/4AXpHW2WGxmsKcYnSuzzjn4jjnwN5GdxX0KS4vBcxrMq2/yVN1nMMwyeYUwOCj65X5VPCXVw7WxSSX/xCiXZ8vYMh/ZR3/RiSPt4/q4DHDMcYsJYsvsAA+Hj25+BbYPAsS08IUumSR473vqhTLS5cwfkwdZFydv9YVJod6yPBdVfcXLlagO0lzVVX2IlWYxroEOsS4cIEqzITj8AO0iqcXq4l4W3ekevb4f9pr0DDuzPOTgkc2xZwXVBiKj+0KVU/aTJPab1GcMvy060QkuidnP7jL47lCPkIj9LEXmpJOU4hd1yWQjiUZPRfqM4ojj56oPTqnt7YVUntpQmxirzGtekpQ+wSMZFqzT2UrTM9UTFPuCbpRMU0lNFX5C+f6DgcqZZ2QBRddZ1OY+byfpBeKGuJIDVhE9IgPKfM3/o2CTjNiNyNVFL0zoT6sooLvP6A2W1PBHqDI1aYN7KthQP9Lj6tEsZtS0ZxfwZXSidi9Tgf57zcGaU9sR+T1JyNfwTV2VPYxngmukoqt8P5hUKKj7aXBLUrhBqBEG41b8QcZDDNkChgRlgAAAABJRU5ErkJggg==" // Dummy image URL
+          }
+          alt="Photo"
+          style={{ width: 70, height: 70 }}
+        />
       ),
     },
+    
 
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status) => (
-        <Tag color={status === "Active" ? "green" : "red"}>{status}</Tag>
-      ),
-    },
 
     {
       title: "Alloted Vehicles",
       key: "status",
       render: () => (
-        //   <Select style={{ width: "140px" }} placeholder={"change Vihicle"}>
-        //      {vehicles.map(option => (
-        //   <Select.Option key={option._id} value={option.name}>
-        //     {option.vehicle_number}
-        //   </Select.Option>
-        // ))}
-        //   </Select>
-
-        <Button onClick={() => handleAlloted()}>change Vehicle</Button>
+        <Button onClick={() => handleAlloted()}>Change Vehicle</Button>
       ),
     },
-
+     
+    {
+      title: 'Status',
+      key: 'status',
+      render: (_, record) => (
+        <Switch
+          checked={record.status === "Active"}
+          onChange={() => handleStatusToggle(record)}
+          checkedChildren="Active"
+          unCheckedChildren="Inactive"
+        />
+      ),
+    },
     {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <Button type="link" onClick={() => handleEdit(record)}>
-            Edit
+          <Button  onClick={() => handleEdit(record)}>
+            Update
           </Button>
-          <Switch
-              checked={record.status === 1}
-              onChange={() => handleStatusToggle(record)}
-              checkedChildren="Active"
-              unCheckedChildren="Inactive"
-          />
+          
         </div>
       ),
     },
@@ -458,7 +488,23 @@ const Drivers = () => {
         onCancel={handleCancel}
         footer={null}
       >
-        <Form form={form} layout="vertical" onFinish={handleFinish}>
+        <Form 
+        form={form} 
+        layout="vertical" 
+        onFinish={handleFinish} 
+        // initialValues={{
+        //   name: editingDriver?.name,
+        //   driver_id_type: editingDriver?.driver_id?.type,
+        //   driver_id_number: editingDriver?.driver_id?.number,
+        //   country_code: editingDriver?.country_code,
+        //   number: editingDriver?.number,
+        //   alternate_num: editingDriver?.alternate_num,
+        //   license: editingDriver?.license,
+        //   address: editingDriver?.address,
+        //   vehicle_id: editingDriver?.vehicle_id?._id,  // Use the correct _id from vehicle object
+        //   status: editingDriver?.status === "Active",  // Set switch to true if active
+        // }}
+        >
           <Form.Item
             label="Driver Name"
             name="name"
@@ -619,29 +665,34 @@ const Drivers = () => {
         onCancel={handleCancel2}
       >
         {record1?.vehicle_id ? (
+            <>
+           <Text mb={"10px"} style={{fontWeight:"bold"}}>Alloted Vehicle</Text>
           <Flex mb={"20px"}>
+            
             <Box mr={"20px"}>
-              <Text color={"black"}>Vehicle Number</Text>
-              <Text color={"black"}>Vehicle Id</Text>
-              <Text color={"black"}>Capacity</Text>
-              <Text color={"black"}>Brand make</Text>
+              <Text color={"black"}  style={{fontWeight:"bold"}}>Vehicle Number</Text>
+              <Text color={"black"} style={{fontWeight:"bold"}}>Vehicle Id</Text>
+              <Text color={"black"} style={{fontWeight:"bold"}}>Capacity</Text>
+              <Text color={"black"} style={{fontWeight:"bold"}}>Brand make</Text>
             </Box>
             <Box>
-              <Text color={"green"}>{record1?.vehicle_id?.vehicle_number}</Text>
-              <Text color={"green"}>{record1?.vehicle_id?.vehicle_id}</Text>
-              <Text color={"green"}>{record1?.vehicle_id?.capacity}</Text>
-              <Text color={"green"}>
+              <Text >{record1?.vehicle_id?.vehicle_number}</Text>
+              <Text >{record1?.vehicle_id?.vehicle_id}</Text>
+              <Text >{record1?.vehicle_id?.capacity}</Text>
+              <Text >
                 {record1?.vehicle_id?.brand_make?.name}
               </Text>
             </Box>
           </Flex>
+          </>
         ) : (
-          <h1>data not found</h1>
+          <Text mb={"10px"} color={"red"}>There is no alloted Vehicle</Text>
         )}
-
+      
+      <Text mb={"10px"} style={{fontWeight:"bold"}}>Change Vehicles</Text>
         <Select
           style={{ width: "140px" }}
-          placeholder={"change Vihicle"}
+          placeholder={"Change Vehicle"}
           onChange={changeVehicle}
           value={selectedVehicle}
           
@@ -659,16 +710,16 @@ const Drivers = () => {
           {
              vehicleData?(<>
                     <Box mr={"20px"}>
-            <Text color={"black"}>Vehicle Number</Text>
-            <Text color={"black"}>Vehicle Id</Text>
-            <Text color={"black"}>Capacity</Text>
-            <Text color={"black"}>Brand make</Text>
+            <Text color={"black"} style={{fontWeight:"bold"}}>Vehicle Number</Text>
+            <Text color={"black"} style={{fontWeight:"bold"}}>Vehicle Id</Text>
+            <Text color={"black"} style={{fontWeight:"bold"}}>Capacity</Text>
+            <Text color={"black"} style={{fontWeight:"bold"}}>Brand make</Text>
           </Box>
           <Box>
-            <Text color={"green"}>{vehicleData?.vehicle_number}</Text>
-            <Text color={"green"}>{vehicleData?.vehicle_id}</Text>
-            <Text color={"green"}>{vehicleData?.capacity}</Text>
-            <Text color={"green"}>{vehicleData?.brand_make?.name}</Text>
+            <Text >{vehicleData?.vehicle_number}</Text>
+            <Text >{vehicleData?.vehicle_id}</Text>
+            <Text >{vehicleData?.capacity}</Text>
+            <Text >{vehicleData?.brand_make?.name}</Text>
           </Box>
              </>):(<><h1></h1></>)
           }

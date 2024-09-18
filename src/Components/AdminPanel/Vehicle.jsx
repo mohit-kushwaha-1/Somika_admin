@@ -8,6 +8,7 @@ const { Option } = Select;
 
 const Vehicle = () => {
   const [data, setData] = useState([]);
+  const [photo, setPhoto] = useState("");
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -21,6 +22,38 @@ const Vehicle = () => {
   const [baseLocations, setBaseLocations] = useState([]);
   const [allowedLocations, setAllowedLocations] = useState([]);
 
+  const[image1,setImage] = useState();
+
+  const uploadImage = async (file) => {
+    console.log(file);
+    const formData = new FormData();
+    formData.append("image", file.file);
+    console.log(file.file.name);
+
+    try {
+      const response = await axios.post(
+        "http://102.133.144.226:8000/api/v1/users/uploadImage",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      message.success("Image uploaded successfully!");
+      setImage(response.data.filePath);
+      console.log("image is ",image1);
+      // console.log("image is ",response.data.filePath
+      // );
+      return response.data.url; // Assuming the API returns the image URL in the 'url' field
+    } catch (error) {
+      message.error("Error uploading image. Please try again later.");
+      console.error("Image upload error:", error);
+      return null;
+    }
+  };
+
+
   useEffect(() => {
     fetchData();
     fetchDropdownData();
@@ -31,28 +64,45 @@ const Vehicle = () => {
     try {
       const response = await axios.get('http://102.133.144.226:8000/api/v1/vehicles');
       setData(response.data);
-      console.log("responce data",response.data);
+      console.log("responce data  is now ",response.data);
 
-      const base = await axios.get("http://102.133.144.226:8000/api/v1/companies/getAllBaseLocations")
-      console.log("base",base?.data?.getAllBaseLocations[0].Base.BaseDetails.name);
+      const data1 = response.data;
 
-      const a = base?.data?.getAllBaseLocations.map((item)=>{
-              return item.Base.BaseDetails.name
+      const final = data1.map((item)=>{
+                 
+        const a = {
+          capacity:item?.capacity,
+          vehicle_number:item?.vehicle_number,
+          vehicle_id:item?.vehicle_id,
+          TrasmissionType:item?.TrasmissionType?.type,
+          brand_make:item?.brand_make?.name,
+          base_location:item?.base_location?.companyId?.name,
+        
+        }
+           
       })
 
 
-    const b =   response.data.forEach((vehicle, index) => {
-        if (a[index]) {
-          vehicle.base_location = a[index];  
-        } else {
-          vehicle.base_location = "Default Location";  
-        }
-      });
+      // const base = await axios.get("http://102.133.144.226:8000/api/v1/companies/getAllBaseLocations")
+      // console.log("base",base?.data?.getAllBaseLocations[0].Base.BaseDetails.name);
 
-      setBaseLocations(a)
-      console.log("b is ",b);
+      // const a = base?.data?.getAllBaseLocations.map((item)=>{
+      //         return item.Base.BaseDetails.name
+      // })
 
-      console.log("a is ",a);
+
+    // const b =   response.data.forEach((vehicle, index) => {
+    //     if (a[index]) {
+    //       vehicle.base_location = a[index];  
+    //     } else {
+    //       vehicle.base_location = "Default Location";  
+    //     }
+    //   });
+
+      // setBaseLocations(a)
+      // console.log("b is ",b);
+
+      // console.log("a is ",a);
     } catch (error) {
       message.error('Error fetching vehicles. Please try again later.');
       console.error('Error fetching vehicles:', error);
@@ -183,6 +233,7 @@ const Vehicle = () => {
 
     const vehicleData = {
       vehicle_id: values.vehicle_id,
+      photo: image1,
       vehicle_number: values.vehicle_number,
       capacity: values.capacity,
       TrasmissionType: values.TrasmissionType,
@@ -191,7 +242,7 @@ const Vehicle = () => {
       country_code: values.country_code,
       base_location: values.base_location,
       allowed_locations: dataToSend,
-      status: values.status ? 'Active' : 'Inactive',
+      status: values.status ,
       vehicle_image: values.vehicle_image ? values.vehicle_image.file.originFileObj : undefined,
     };
 
@@ -210,6 +261,9 @@ const Vehicle = () => {
       console.error('Error submitting form:', error);
     }
   };
+
+
+
 
   const columns = [
     {
@@ -250,9 +304,21 @@ const Vehicle = () => {
 
     {
       title: 'Base Location',
-      dataIndex: 'base_location',
+      dataIndex: ['base_location','companyId', 'name'],
       key: 'base_location',
-      // render: (base_location) => base_location?.label,
+      // render:(record)=>{
+      //     if(record?.base_location){
+      //       let color="black";
+      //       let statusText = record?.base_location;
+
+      //       return (
+      //         <span style={{ color }}>
+      //           {statusText}
+      //         </span>
+      //       );
+      //     }
+      // }
+      
     },
     // {
     //   title: 'Allowed Location',
@@ -269,6 +335,23 @@ const Vehicle = () => {
     // }
     // ,
     // {
+
+    {
+      title: "Photo",
+      key: "photo",
+      render: (_, record) => (
+        <img
+          src={
+            record?.photo
+              ? `http://102.133.144.226:8000/${record.photo}`
+              : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKgAAACUCAMAAAAwLZJQAAAAMFBMVEXk5ueutLfp6+y2vL6rsbWor7KyuLu6v8LT1tjY29zb3t/Gysze4eLDx8rP09TJzc8ZZtZUAAAD90lEQVR4nO2c246jMAxAickVCPn/v90And22gtaJwWa0OS8jjebhyIlNLs50XaPRaDQajUaj0Wg0Go1G10E3DWGex5hJPgwdgLTSHtD56Kw2Ri/kH9aNvrudKgSnlFYvaK1snO6lGnrzZvkja1yQlvtLjqbe19zi6u4S1fhBc1VVSVqxW8JpP2sumF48qDC/p9B+UK30TE0Iy011Fo1pNFhRZQRNYcR7LjEVE02Y6fkUUy+jCXOZZzadZExLPZXuRTz7YlGlo4DnWO65TFP21J8qNBe4RcHVBHQZfGbToaSCPmMHVk9wlZ5Kj6yiodYzw1pMY90MXTCJcZZOlhBRzsT3tam0hpQvnWpr0wO+CgWUgOYKxeXZBaIo17YECteh77DtSuqr/UOUbffcE0W5FnsDqYpmuNbPgSpqmb6inujJ9bmHmeqpeb5N5bvPd5g+oieI8lT8/0iUaY7Ss14zlSfKPmSDS5Rc8Hk8iRuRPPKOSRR+y6Lk1yzzyPWJ7UB3Im5F2LahQItoz7cLrTob/YHzImegiBo2za7qWPxvQPlGPkPIe6al04P6jxPbZ2kDqs8d+Tb1D9PaUsp91QSpzlTg/qYq8bXlv2KuWz4L3IaW3YE/ELkJB0QzySvayfQWlBZTiQm6UTZNNdfZ2J5p0TTlvVx8AfAxzfEUbdPBtGetnv0g3aJlMcNveJci+6SvvWTact5/HgLhS1CNEx/2H+ZPbZlWqN1pD4DU704ArRz/cukjS4ezfevK1caO4X5dzpkhOW3WWaC1US4JVvgvAEA3BO99mG7a2/4AXpHW2WGxmsKcYnSuzzjn4jjnwN5GdxX0KS4vBcxrMq2/yVN1nMMwyeYUwOCj65X5VPCXVw7WxSSX/xCiXZ8vYMh/ZR3/RiSPt4/q4DHDMcYsJYsvsAA+Hj25+BbYPAsS08IUumSR473vqhTLS5cwfkwdZFydv9YVJod6yPBdVfcXLlagO0lzVVX2IlWYxroEOsS4cIEqzITj8AO0iqcXq4l4W3ekevb4f9pr0DDuzPOTgkc2xZwXVBiKj+0KVU/aTJPab1GcMvy060QkuidnP7jL47lCPkIj9LEXmpJOU4hd1yWQjiUZPRfqM4ojj56oPTqnt7YVUntpQmxirzGtekpQ+wSMZFqzT2UrTM9UTFPuCbpRMU0lNFX5C+f6DgcqZZ2QBRddZ1OY+byfpBeKGuJIDVhE9IgPKfM3/o2CTjNiNyNVFL0zoT6sooLvP6A2W1PBHqDI1aYN7KthQP9Lj6tEsZtS0ZxfwZXSidi9Tgf57zcGaU9sR+T1JyNfwTV2VPYxngmukoqt8P5hUKKj7aXBLUrhBqBEG41b8QcZDDNkChgRlgAAAABJRU5ErkJggg==" // Dummy image URL
+          }
+          alt="Photo"
+          style={{ width: 90, height: 90 }}
+        />
+      ),
+    },
+
       {
         title: 'Status',
         key: 'status',
@@ -406,7 +489,7 @@ const Vehicle = () => {
           >
             <Select placeholder="Select Base Location">
               {baseLocations.map(loc => (
-                <Option key={loc.value} value={loc.value}>
+                <Option key={loc.value} value={loc._id}>
                   {loc.label}
                 </Option>
               ))}
@@ -431,18 +514,38 @@ const Vehicle = () => {
           </Form.Item>
 
           <Form.Item
-            label="Vehicle Image"
-            name="vehicle_image"
-            valuePropName="file"
+            label="Photo"
+            name="photo"
+            onChange={(e) => setPhoto(e.target.files[0])}
+            rules={[
+              { required: true, message: "Please upload the driver's photo!" },
+            ]}
           >
             <Upload
               listType="picture"
               beforeUpload={() => false}
-              maxCount={1}
+              onChange={uploadImage}
+              showUploadList={false}
+              customRequest={({ file, onSuccess }) => {
+                setTimeout(() => {
+                  onSuccess("ok");
+                }, 0);
+              }}
             >
-              <Button icon={<UploadOutlined />}>Upload Vehicle Image</Button>
+              <Button icon={<UploadOutlined />}>Upload Photo</Button>
             </Upload>
           </Form.Item>
+
+          {photo && (
+            <div>
+              <img
+                src={URL.createObjectURL(photo)}
+                alt="Uploaded"
+                height="100px"
+                width="100px"
+              />
+            </div>
+          )}
           {/* <Form.Item
             label="Status"
             name="status"

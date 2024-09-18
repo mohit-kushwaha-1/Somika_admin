@@ -85,14 +85,14 @@ const AdminPanel = () => {
         return <Vehicle />;
       case "trips":
         return <Trips />;
-      case "couriers":
-        return <Couriers />;
-      case "requests":
-        return <Requests />;
+      // case "couriers":
+      //   return <Couriers />;
+      // case "requests":
+      //   return <Requests />;
       case "base-location-reporting":
         return <BaseLocationReporting />;
-      case "exception-report":
-        return <ExceptionReport />;
+      // case "exception-report":
+      //   return <ExceptionReport />;
       case "master-card":
         return <MasterCards setSelectedTab={setSelectedTab} />;
       case "company-master":
@@ -152,19 +152,19 @@ const AdminPanel = () => {
     driver: { key: "driver", icon: <TruckOutlined />, label: "Driver" },
     vehicle: { key: "vehicle", icon: <CarOutlined />, label: "Vehicle" },
     trip: { key: "trips", icon: <EnvironmentOutlined />, label: "Trip" },
-    courier: { key: "couriers", icon: <CarryOutOutlined />, label: "Courier" },
-    request: { key: "requests", icon: <FormOutlined />, label: "Request" },
+    // courier: { key: "couriers", icon: <CarryOutOutlined />, label: "Courier" },
+    // request: { key: "requests", icon: <FormOutlined />, label: "Request" },
     airport: { key: "airport", icon: <TranslationOutlined />, label: "Airport" },
     "base location": {
       key: "base-location-reporting",
       icon: <HomeOutlined />,
       label: "Location",
     },
-    "exception report": {
-      key: "exception-report",
-      icon: <WarningOutlined />,
-      label: "Exception Report",
-    },
+    // "exception report": {
+    //   key: "exception-report",
+    //   icon: <WarningOutlined />,
+    //   label: "Exception Report",
+    // },
     "master card": {
       key: "master-card",
       icon: <TeamOutlined />,

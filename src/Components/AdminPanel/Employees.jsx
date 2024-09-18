@@ -722,8 +722,13 @@
 
 // export default Employees;
 
+import Notify from '../../Notify';
+import A from '../../A';
+
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Select, message, Switch } from 'antd';
+import { Table, Button, Modal, Form, Input, Select, message,Upload, Switch } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
+import axios from 'axios';
 
 const { Option } = Select;
 
@@ -733,11 +738,43 @@ const Employees = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [form] = Form.useForm();
+  const [photo, setPhoto] = useState("");
 
   const [locations, setLocations] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [countryCodes, setCountryCodes] = useState([]);
+
+    const[image1,setImage] = useState();
+
+  const uploadImage = async (file) => {
+    console.log(file);
+    const formData = new FormData();
+    formData.append("image", file.file);
+    console.log(file.file.name);
+
+    try {
+      const response = await axios.post(
+        "http://102.133.144.226:8000/api/v1/users/uploadImage",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      message.success("Image uploaded successfully!");
+      setImage(response.data.filePath);
+      console.log("image is ",image1);
+      // console.log("image is ",response.data.filePath
+      // );
+      return response.data.url; // Assuming the API returns the image URL in the 'url' field
+    } catch (error) {
+      message.error("Error uploading image. Please try again later.");
+      console.error("Image upload error:", error);
+      return null;
+    }
+  };
 
   useEffect(() => {
     fetchEmployees();
@@ -755,7 +792,9 @@ const Employees = () => {
           key: item._id,
           ...item
         }));
-        setData(employees);
+
+        const reversedEmployees = employees.reverse();
+        setData(reversedEmployees);
         // console.log(employees);
       } else {
         message.error('Failed to fetch employee data.');
@@ -803,6 +842,7 @@ const Employees = () => {
     setEditingEmployee(record);
     form.setFieldsValue({
       name: record.name,
+      photo: image1,
       company: record.company?._id,
       department: record.department?._id,
       base_office_location_name: record.base_office_location_name,
@@ -843,6 +883,9 @@ const Employees = () => {
   
 
   const handleSubmit = async (values) => {
+      const a = values;
+      values['photo'] = image1;
+      console.log("a is followinf ",a);
     if (editingEmployee) {
       await handlePut(values);
     } else {
@@ -863,6 +906,7 @@ const Employees = () => {
       const result = await response.json();
       if (result.success) {
         fetchEmployees();
+        setPhoto("");
         message.success('Employee added successfully!');
         setIsModalOpen(false);
       } else {
@@ -888,6 +932,7 @@ const Employees = () => {
       // console.log("result is ",result.message);
       if (result.message === "User updated successfully") {
         fetchEmployees();
+        setPhoto("");
         message.success('Employee updated successfully!');
         setIsModalOpen(false);
       } else {
@@ -898,6 +943,27 @@ const Employees = () => {
       console.error('Error updating employee:', error);
     }
   };
+
+
+  useEffect(() => {
+    if (editingEmployee) {
+      // Populate form fields when record data is available (for updating)
+      form.setFieldsValue({
+        name: editingEmployee.name,
+        company: editingEmployee.company?._id,                // Assuming company is an object and you're using its _id
+        department: editingEmployee.department?._id,          // Assuming department is an object and you're using its _id
+        base_office_location_name: editingEmployee.base_office_location_name?._id, // Assuming base_office_location_name is an object and you're using its _id
+        employee_id: editingEmployee.employee_id,
+        country_code: editingEmployee.country_code?._id,      // Assuming country_code is an object and you're using its _id
+        mobile: editingEmployee.mobile,
+        email: editingEmployee.email,
+      });
+    } else if(!editingEmployee) {
+      // Clear form fields when adding a new record
+      form.resetFields();
+    }
+  }, [editingEmployee, form]);
+  
 
   const columns = [
     {
@@ -920,6 +986,23 @@ const Employees = () => {
       dataIndex: 'email',
       key: 'email',
     },
+
+    {
+      title: "Photo",
+      key: "photo",
+      render: (_, record) => (
+        <img
+          src={
+            record?.photo
+              ? `http://102.133.144.226:8000/${record.photo}`
+              : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKgAAACUCAMAAAAwLZJQAAAAMFBMVEXk5ueutLfp6+y2vL6rsbWor7KyuLu6v8LT1tjY29zb3t/Gysze4eLDx8rP09TJzc8ZZtZUAAAD90lEQVR4nO2c246jMAxAickVCPn/v90And22gtaJwWa0OS8jjebhyIlNLs50XaPRaDQajUaj0Wg0Go1G10E3DWGex5hJPgwdgLTSHtD56Kw2Ri/kH9aNvrudKgSnlFYvaK1snO6lGnrzZvkja1yQlvtLjqbe19zi6u4S1fhBc1VVSVqxW8JpP2sumF48qDC/p9B+UK30TE0Iy011Fo1pNFhRZQRNYcR7LjEVE02Y6fkUUy+jCXOZZzadZExLPZXuRTz7YlGlo4DnWO65TFP21J8qNBe4RcHVBHQZfGbToaSCPmMHVk9wlZ5Kj6yiodYzw1pMY90MXTCJcZZOlhBRzsT3tam0hpQvnWpr0wO+CgWUgOYKxeXZBaIo17YECteh77DtSuqr/UOUbffcE0W5FnsDqYpmuNbPgSpqmb6inujJ9bmHmeqpeb5N5bvPd5g+oieI8lT8/0iUaY7Ss14zlSfKPmSDS5Rc8Hk8iRuRPPKOSRR+y6Lk1yzzyPWJ7UB3Im5F2LahQItoz7cLrTob/YHzImegiBo2za7qWPxvQPlGPkPIe6al04P6jxPbZ2kDqs8d+Tb1D9PaUsp91QSpzlTg/qYq8bXlv2KuWz4L3IaW3YE/ELkJB0QzySvayfQWlBZTiQm6UTZNNdfZ2J5p0TTlvVx8AfAxzfEUbdPBtGetnv0g3aJlMcNveJci+6SvvWTact5/HgLhS1CNEx/2H+ZPbZlWqN1pD4DU704ArRz/cukjS4ezfevK1caO4X5dzpkhOW3WWaC1US4JVvgvAEA3BO99mG7a2/4AXpHW2WGxmsKcYnSuzzjn4jjnwN5GdxX0KS4vBcxrMq2/yVN1nMMwyeYUwOCj65X5VPCXVw7WxSSX/xCiXZ8vYMh/ZR3/RiSPt4/q4DHDMcYsJYsvsAA+Hj25+BbYPAsS08IUumSR473vqhTLS5cwfkwdZFydv9YVJod6yPBdVfcXLlagO0lzVVX2IlWYxroEOsS4cIEqzITj8AO0iqcXq4l4W3ekevb4f9pr0DDuzPOTgkc2xZwXVBiKj+0KVU/aTJPab1GcMvy060QkuidnP7jL47lCPkIj9LEXmpJOU4hd1yWQjiUZPRfqM4ojj56oPTqnt7YVUntpQmxirzGtekpQ+wSMZFqzT2UrTM9UTFPuCbpRMU0lNFX5C+f6DgcqZZ2QBRddZ1OY+byfpBeKGuJIDVhE9IgPKfM3/o2CTjNiNyNVFL0zoT6sooLvP6A2W1PBHqDI1aYN7KthQP9Lj6tEsZtS0ZxfwZXSidi9Tgf57zcGaU9sR+T1JyNfwTV2VPYxngmukoqt8P5hUKKj7aXBLUrhBqBEG41b8QcZDDNkChgRlgAAAABJRU5ErkJggg==" // Dummy image URL
+          }
+          alt="Photo"
+          style={{ width: 90, height: 90 }}
+        />
+      ),
+    },
+
     {
       title: 'Status',
       key: 'status',
@@ -937,7 +1020,7 @@ const Employees = () => {
       key: 'actions',
       render: (_, record) => (
         <>
-          <Button onClick={() => handleEdit(record)}>Edit</Button>
+          <Button onClick={() => handleEdit(record)}>Update</Button>
         </>
       ),
     },
@@ -954,6 +1037,8 @@ const Employees = () => {
 
   return (
     <div>
+       {/* <A/> */}
+      {/* <Notify/> */}
       <Button type="primary" onClick={handleAdd} style={{ marginBottom: 16 }}>
         Add Employee
       </Button>
@@ -974,6 +1059,16 @@ const Employees = () => {
           form={form}
           layout="vertical"
           onFinish={handleSubmit}
+          // initialValues={editingEmployee ? {
+          //   name: editingEmployee.name,
+          //   company: editingEmployee.company,
+          //   department: editingEmployee.department,
+          //   base_office_location_name: editingEmployee.base_office_location_name?._id,
+          //   employee_id: editingEmployee.employee_id,
+          //   country_code: editingEmployee.country_code,
+          //   mobile: editingEmployee.mobile,
+          //   email: editingEmployee.email,
+          // } : {}}
         >
           <Form.Item
             name="name"
@@ -1045,6 +1140,41 @@ const Employees = () => {
             <Input  placeholder="Enter Mobile Number"/>
           </Form.Item>
           </div>
+
+          <Form.Item
+            label="Photo"
+            name="photo"
+            onChange={(e) => setPhoto(e.target.files[0])}
+            rules={[
+              { required: true, message: "Please upload the driver's photo!" },
+            ]}
+          >
+            <Upload
+              listType="picture"
+              beforeUpload={() => false}
+              onChange={uploadImage}
+              showUploadList={false}
+              customRequest={({ file, onSuccess }) => {
+                setTimeout(() => {
+                  onSuccess("ok");
+                }, 0);
+              }}
+            >
+              <Button icon={<UploadOutlined />}>Upload Photo</Button>
+            </Upload>
+          </Form.Item>
+
+          {photo && (
+            <div>
+              <img
+                src={URL.createObjectURL(photo)}
+                alt="Uploaded"
+                height="100px"
+                width="100px"
+              />
+            </div>
+          )}
+
           <Form.Item
             name="email"
             label="Email"

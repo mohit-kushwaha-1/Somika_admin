@@ -15,6 +15,7 @@ import { SearchOutlined } from "@ant-design/icons";
 import axios from "axios";
 
 const { Option } = Select;
+// import { Text } from '@chakra-ui/react';
 
 const AirportTrip = ({ setSelectedTab }) => {
   const [data, setData] = useState([]);
@@ -86,11 +87,36 @@ const AirportTrip = ({ setSelectedTab }) => {
 
   
 
+  const columns = [
+    {
+      title: 'Name',
+      // dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: 'Employee ID',
+      // dataIndex: 'employee_id',
+      key: 'employee_id',
+    },
+    {
+      title: 'Mobile',
+      // dataIndex: 'mobile',
+      key: 'mobile',
+    },
+    {
+      title: 'Email',
+      // dataIndex: 'email',
+      key: 'email',
+    },
+
+    
+  ];
+
 
   
   return (
     <>
-      <Flex gap="small">
+      {/* <Flex gap="small">
         <Select
           showSearch
           value={searchValue}
@@ -109,7 +135,24 @@ const AirportTrip = ({ setSelectedTab }) => {
         </Select>
 
         <Button  onClick={() => handleCardClick('airportbook')}>Book now</Button>
-      </Flex>
+      </Flex> */}
+
+
+        <h1 style={{fontSize:"1.2rem",marginBottom:"10px"}}>Airport Trip</h1>
+
+        <div>
+        <Button  onClick={() => handleCardClick('airportbook')} type="primary"  style={{marginLeft:"10px"}}>New Booking</Button> 
+        </div>
+       
+        <Table
+        columns={columns}
+        // dataSource={data}
+        loading={loading}
+        rowKey="key"
+      />
+
+
+
     </>
   );
 };

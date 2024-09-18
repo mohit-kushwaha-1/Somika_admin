@@ -260,31 +260,33 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
   Table,
-  Thead,
-  Tbody,
-  Tfoot,
-  Tr,
-  Th,
-  Td,
-  TableCaption,
-  TableContainer,
   Button,
-  Box,
-  Flex,
-  useDisclosure,
-} from "@chakra-ui/react";
+  Modal,
+  Form,
+  Input,
+  // Select,
+  message,
+  Switch,
+} from "antd";
+
+
+// import {
+//   Modal,
+//   ModalOverlay,
+//   ModalContent,
+//   ModalHeader,
+//   ModalFooter,
+//   ModalBody,
+//   ModalCloseButton,
+//   Text,
+// } from "@chakra-ui/react";
+import { Select } from "@chakra-ui/react";
 
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
   Text,
+  Box,
+  Flex,
 } from "@chakra-ui/react";
-import { Select } from "@chakra-ui/react";
 
 import {
   List,
@@ -292,22 +294,102 @@ import {
   ListIcon,
   OrderedList,
   UnorderedList,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react'
 
-import {  message} from 'antd';
+// import {  message} from 'antd';
 
 const Trips = () => {
-
-  const [status,setStatus] = useState("");
-  const [vehicleId,setVehicleId] = useState("")
+  const [status, setStatus] = useState("");
+  const [vehicleId, setVehicleId] = useState("");
   const [data, setData] = useState();
   const [loading, setLoading] = useState(true);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  // const { isOpen, onOpen, onClose } = useDisclosure();
   const [cabs, setCabs] = useState([]);
+  const [record1, setRecord] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchTrip();
   }, []);
+
+  // useEffect(() => {
+  //   handleRowClick()
+  // }, []);
+
+  const handleRow = async (record) => {
+    
+      console.log("Clicked row data:", record);
+      setRecord(record);  // Update state with clicked row data
+      setIsModalOpen(true);  // Open modal if necessary
+  
+      // Since setState is asynchronous, resolve the promise after state is se
+        
+
+      setTimeout(async() => {
+        try {
+
+          const currentLocation = record?.currentLocationID;
+          const destinationLocation = record?.destinationLocationID  ;    
+          const bookingDate = record?.bookingDate1;
+          const getCurrentTime = () => {
+            const currentTime = new Date();
+            return currentTime.toLocaleTimeString("en-US", {
+              hour: "numeric",
+              minute: "numeric",
+              hour12: true,
+            });
+          };
+    
+          const requestedStartTime = getCurrentTime();
+          console.log("request time", getCurrentTime());
+          const data = await axios.post(
+            "http://102.133.144.226:8000/api/v1/trip/getNearestCab",
+            {
+              currentLocation,
+              destinationLocation,
+              bookingDate,
+              requestedStartTime,
+            }
+          );
+    
+          console.log("data is is is", data);
+    
+          const filter = data?.data?.suitableCabs?.filter((item) => {
+            return item?.cab?.type === "NA";
+          });
+    
+          if (filter) {
+            setCabs(filter);
+            console.log("etcabs is running");
+          }
+    
+          console.log("filter data is", filter);
+        } catch (error) {
+          console.log(error);
+        }
+      }, 100); 
+      
+      
+   
+  };
+
+  console.log("vehicle id is following",record1);
+
+
+  
+
+
+  const handleAlloted = () => {
+    setIsModalOpen(true);
+    
+  };
+  
+
+  const handleCancel = ()=>{
+    setIsModalOpen(false);
+    setCabs([]);
+
+  }
 
   const fetchTrip = async () => {
     setLoading(true);
@@ -317,23 +399,16 @@ const Trips = () => {
         "http://102.133.144.226:8000/api/v1/trip/getAllIntercityTripRequests"
       );
       const result = await response.json();
-      console.log("final result is ",result);
+      console.log("final result is ", result);
 
-      
-
-      const response1 = await fetch(
-        "http://102.133.144.226:8000/api/v1/trip/getAllAirdropBookings"
-      );
-      const result3 = await response1.json();
-      
-      // console.log("33", result3.employeeId[0]._id
+      // const response1 = await fetch(
+      //   "http://102.133.144.226:8000/api/v1/trip/getAllAirdropBookings"
       // );
+      // const result3 = await response1.json();
 
       const result1 = result.tripRequests;
       if (result.message === "Trip requests fetched successfully") {
         const reversedArr = result1.reverse();
-
-
 
         const data1 = reversedArr.filter((item) => {
           return (
@@ -342,10 +417,66 @@ const Trips = () => {
             item.destinationPoint !== null
           );
         });
-        setData(data1);
-        console.log("data 1 is",data1[1]._id);
-        console.log("data 1 is",data1);
-        
+
+        const finaldata = data1.map((item) => {
+          const starttime = item?.startTime;
+
+          const date = new Date(starttime);
+
+          // Get hours and minutes
+          let hours = date.getUTCHours();
+          let minutes = date.getUTCMinutes();
+          const day = date.getUTCDate();
+          const month = date.toLocaleString("en-us", { month: "short" });
+
+          // Convert to 12-hour format and set AM/PM
+          const ampm = hours >= 12 ? "pm" : "am";
+          hours = hours % 12 || 12; // Convert to 12-hour format
+          minutes = minutes < 10 ? "0" + minutes : minutes; // Add leading zero if needed
+
+          // Format the time
+          const formattedTime = `${hours}.${minutes}${ampm},${day}-${month.toLowerCase()}`;
+
+          const formatDate = (dateString) => {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) {
+              return "No Date Available"; 
+            }
+            
+            return date
+              .toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+              })
+              .replace(/\//g, "-"); 
+          };
+
+          let bookingDate = formatDate(item?.startTime);
+           
+          let currentLocation = item?.boardingPoint._id;
+          let destinationLocation = item?.destinationPoint._id;
+          const returndata = {
+            name: item?.employeeId?.name,
+            Email: item?.employeeId?.email,
+            mobile: item?.employeeId?.mobile,
+            BoradingPoint: item?.boardingPoint?.companyId?.name,
+            DestinationPonint: item?.destinationPoint?.companyId?.name,
+            starttime: formattedTime,
+            status: item?.status,
+            currentLocationID:currentLocation,
+            destinationLocationID:destinationLocation,
+            bookingDate1:bookingDate,
+            requestId:item?._id,
+          };
+
+          return returndata;
+        });
+
+        console.log("final data is", finaldata);
+        setData(finaldata);
+        // console.log("data 1 is",data1[1]._id);
+        // console.log("data 1 is",data1);
       } else {
         console.log("error in fetching data");
       }
@@ -356,76 +487,297 @@ const Trips = () => {
     }
   };
 
-  const handleSubmit = async (
-    currentLocation,
-    destinationLocation,
-    bookingDate
-  ) => {
-    onOpen();
+  // const handleSubmit = async () => {
+  //   try {
+
+  //     const currentLocation = record1?.currentLocationID;
+  //     const destinationLocation = record1?.destinationLocationID  ;    
+  //     const bookingDate = record1?.bookingDate1;
+  //     const getCurrentTime = () => {
+  //       const currentTime = new Date();
+  //       return currentTime.toLocaleTimeString("en-US", {
+  //         hour: "numeric",
+  //         minute: "numeric",
+  //         hour12: true,
+  //       });
+  //     };
+
+  //     const requestedStartTime = getCurrentTime();
+  //     console.log("request time", getCurrentTime());
+  //     const data = await axios.post(
+  //       "http://102.133.144.226:8000/api/v1/trip/getNearestCab",
+  //       {
+  //         currentLocation,
+  //         destinationLocation,
+  //         bookingDate,
+  //         requestedStartTime,
+  //       }
+  //     );
+
+  //     console.log("data is is is", data);
+
+  //     const filter = data?.data?.suitableCabs?.filter((item) => {
+  //       return item?.cab?.type === "NA";
+  //     });
+
+  //     if (filter) {
+  //       setCabs(filter);
+  //       console.log("etcabs is running");
+  //     }
+
+  //     console.log("filter data is", filter);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
+  const handleAprove = async () => {
     try {
+      const status = "approved";
+      const requestId = record1?.requestId;
+      // console.log("vehicale id is",vehicleId);
 
-      const getCurrentTime = () => {
-        const currentTime = new Date();
-        return currentTime.toLocaleTimeString('en-US', {
-          hour: 'numeric',
-          minute: 'numeric',
-          hour12: true
-        });
-      };
-
-      const requestedStartTime =getCurrentTime();
-      console.log("request time", getCurrentTime());
+      if(!vehicleId){
+            message.error(" Please select Vehicle")
+      }
       const data = await axios.post(
-        "http://102.133.144.226:8000/api/v1/trip/getNearestCab",
+        "http://102.133.144.226:8000/api/v1/trip/intercity/approve",
         {
-          currentLocation,
-          destinationLocation,
-          bookingDate,
-          requestedStartTime,
+          requestId,
+          vehicleId,
+          status,
         }
       );
 
-      console.log("data is", data);
-
-      const filter = data?.data?.suitableCabs?.filter((item) => {
-        return item?.cab?.type === "NA";
-      });
-
-      if (filter) {
-        setCabs(filter);
+      if (data.data.message==="Trip approved and booked successfully") {
+        message.success("trip booked succesfully");
+        fetchTrip();
+        setIsModalOpen(false);
+        setVehicleId("");
+        cabs([]);
+        
       }
-
-      console.log("filter data is", filter);
+      console.log(data);
     } catch (error) {
       console.log(error);
     }
   };
 
+  const handleReject = async()=>{
+  
+      try {
+      const status = "rejected";
+      const requestId = record1?.requestId;
+      console.log("vehicale id is",vehicleId);
+      const data = await axios.post(
+        "http://102.133.144.226:8000/api/v1/trip/intercity/approve",
+        {
+          requestId,
+          vehicleId,
+          status,
+        }
+      );
 
-  const handleAprove = async(requestId)=>{
-         try {
+      if (data) {
+        message.success("trip Reject succesfully");
+        setIsModalOpen(false);
+        fetchTrip();
+      }
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+       
 
-          const status= "approved"
-              const data = await axios.post("http://102.133.144.226:8000/api/v1/trip/intercity/approve",{
-                requestId,
-                vehicleId,
-                status,
-              })
-              
-              if(data){
+  const columns = [
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+    },
 
-                message.success("trip booked succesfully");
-                onClose();
-              }
-              console.log(data);
-         } catch (error) {
-             console.log(error);
-         }
-  }
+    {
+      title: "Mobile",
+      dataIndex: "mobile",
+      key: "mobile",
+    },
+    {
+      title: "Email",
+      dataIndex: "Email",
+      key: "email",
+    },
+    {
+      title: "Bording Point",
+      dataIndex: "BoradingPoint",
+      key: "BoradingPoint",
+    },
+
+    {
+      title: "Destination Point",
+      dataIndex: "DestinationPonint",
+      key: "DestinationPonint",
+    },
+
+    {
+      title: "Start Time",
+      dataIndex: "starttime",
+      key: "starttime",
+    },
+    {
+      title: "Status",
+      key: "status",
+      render: (_, record) => {
+        let color;
+        let statusText;
+    
+        // Determine color and text based on the status value
+        if (record.status === "approved") {
+          color = "green";
+          statusText = "Approved";
+        } else if (record.status === "pending") {
+          color = "orange";
+          statusText = "Pending";
+        } else if (record.status === "rejected") {
+          color = "red";
+          statusText = "Rejected";
+        }
+    
+        return (
+          <span style={{ color }}>
+            {statusText}
+          </span>
+        );
+      }
+    },
+    
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <>
+          <Button
+
+            onClick={()=>{handleRow(record)}}
+          >
+            Update
+          </Button>
+        </>
+      ),
+    },
+  ];
 
   return (
     <div>
-      <TableContainer>
+      <Table
+        columns={columns}
+        dataSource={data}
+        loading={loading}
+        rowKey="key"
+        // onRow={(record) => ({
+        //   onClick: () => {
+        //     handleRowClick(record); // Trigger the click handler
+        //   },
+        // })}
+
+
+
+      />
+
+
+
+       <Modal title={<strong>Intercity Request</strong>}   onCancel={handleCancel} open={isModalOpen}>
+              <Text mt={"20px"} fontWeight={"bold"}>Emp Details</Text>
+                   <Flex>
+                                <Box mr={"20px"}>
+                                  <Text color={"black"} fontWeight={"bold"}>Name</Text>
+                                  <Text color={"black"} fontWeight={"bold"}>Email</Text>
+                                  <Text color={"black"} fontWeight={"bold"}>Boarding Point</Text>
+                                  <Text color={"black"} fontWeight={"bold"}>Destination Point</Text>
+                                  <Text color={"black"} fontWeight={"bold"}>Start Time</Text>
+                                  
+                                </Box>
+                                <Box>
+                                  <Text color={"black"}>
+                                    {record1?.name}
+                                  </Text>
+                                  <Text color={"black"}>
+                                    {record1?.Email}
+                                  </Text>
+                                  <Text color={"black"}>
+                                     {record1?.BoradingPoint}
+                                  </Text>
+
+                                  <Text color={"black"}>
+                                    {record1?.DestinationPonint}
+                                  </Text>
+                                  <Text color={"black"}>
+                                    {record1?.starttime}
+                                  </Text>
+                                </Box>
+                              </Flex>
+
+
+
+                              <Text mt={"20px"} fontWeight={"bold"}>Availbale Cabs</Text>
+
+                              <Flex mb={"15px"} >
+                                <UnorderedList>
+                                  {
+                                  
+                                  cabs?(cabs?.map((item) => {
+                                    return (
+                                      <>
+                                        <ListItem>
+                                          <Flex>
+                                            <Box mr={"20px"}>
+                                              <Text mr={"5px"}>
+                                                Vehicle Number
+                                              </Text>
+                                              <Text color={"green"}>
+                                                {item?.cab?.vehicle_number}
+                                              </Text>
+                                            </Box>
+
+                                            <Box>
+                                              <Text mr={"5px"}>Capacity</Text>
+                                              <Text mr={"5px"} color={"green"}>
+                                                {item?.cab?.capacity}
+                                              </Text>
+                                            </Box>
+                                          </Flex>
+                                        </ListItem>
+                                      </>
+                                    );
+                                  })):(<h1>Loading cabs</h1>)
+                                
+                                
+                                }
+                                </UnorderedList>
+                              </Flex >
+
+
+                              <Select placeholder="Select Vehicle" value={vehicleId} onChange={(e)=>{setVehicleId(e.target.value)}} style={{marginBottom:"20px"}}>
+                                     {
+                                      cabs?.map((item)=>{
+                                          
+                                        return (
+                                             <>
+
+                                    <option key={item.id} value={item?.cab?.vehicle_id}  >
+                                     {item?.cab?.vehicle_number}
+                                     </option>
+                                             </>
+                                        )
+                                      })
+                                     }
+                              </Select>
+
+                              <Button type="primary" onClick={handleAprove} style={{marginRight:"20px"}}>Approve</Button>
+                              <Button type="primary" danger  onClick={handleReject}>Reject</Button>
+      </Modal>
+
+      {/* <TableContainer>
         <Table variant="simple">
           <Thead>
             <Tr>
@@ -434,7 +786,7 @@ const Trips = () => {
               <Th>Boarding Point </Th>
               <Th>Destination Point</Th>
               <Th>Start Time</Th>
-              {/* <Th>End Time</Th> */}
+             
               <Th>Status</Th>
               <Th>Action</Th>
             </Tr>
@@ -453,30 +805,21 @@ const Trips = () => {
                 const formatDate = (dateString) => {
                   const date = new Date(dateString);
                   if (isNaN(date.getTime())) {
-                    return "No Date Available"; // Handle invalid date
+                    return "No Date Available"; 
                   }
-                  // Format the date as DD-MM-YYYY
+                  
                   return date
                     .toLocaleDateString("en-GB", {
                       day: "2-digit",
                       month: "2-digit",
                       year: "numeric",
                     })
-                    .replace(/\//g, "-"); // Replace slashes with dashes
+                    .replace(/\//g, "-"); 
                 };
 
                 let bookingDate = formatDate(item?.startTime);
                 console.log("formateed", bookingDate);
 
-                // let bookingDate = item?.startTime
-                //   ? new Date(item.startTime).toLocaleDateString("en-GB", {
-                //       day: "2-digit",   // Format day as two digits
-                //       month: "2-digit", // Format month as two digits
-                //       year: "numeric",  // Format year as four digits
-                //     })
-                //   : "No Date Available"
-
-                // console.log("khkj",bookingDate);
 
                 console.log(starttime);
                 return (
@@ -488,7 +831,7 @@ const Trips = () => {
                       <Td>{item?.destinationPoint?.companyId?.name}</Td>
                       <Td>
                         {new Date(starttime).toLocaleString("en-US", {
-                          // year: "numeric",
+                          
                           month: "long",
                           day: "numeric",
                           hour: "numeric",
@@ -496,10 +839,11 @@ const Trips = () => {
                           hour12: true,
                         })}
                       </Td>
-                      {/* <Th>{item.endTime}</Th> */}
+                      
                       <Td>{item.status}</Td>
                       <Td>
                         <Button
+                           colorScheme='blue'
                           onClick={() => {
                             handleSubmit(
                               currentLocation,
@@ -523,7 +867,7 @@ const Trips = () => {
                                   <Text color={"black"}>Boarding Point</Text>
                                   <Text color={"black"}>Destination Point</Text>
                                   <Text color={"black"}>StartTime</Text>
-                                  {/* DestinationPoint name */}
+                                  
                                 </Box>
                                 <Box>
                                   <Text color={"black"}>
@@ -589,21 +933,11 @@ const Trips = () => {
                             </ModalBody>
 
                             <ModalFooter>
-                              {/* <Button
-                                colorScheme="blue"
-                                mr={3}
-                                onClick={onClose}
-                              > */}
+                              
                               <Select placeholder="Select Vehicle" onChange={(e)=>{setVehicleId(e.target.value)}} >
                                      {
                                       cabs?.map((item)=>{
                                           
-                                        // setStatus
-                                        // console.log("item is ",item?.cab?.vehicle_id);
-                                        // console.log("item is ",item?.cab.status);
-                                        // setStatus(item?.cab?.vehicle_id)
-
-                                        
                                         return (
                                              <>
 
@@ -615,7 +949,7 @@ const Trips = () => {
                                       })
                                      }
                               </Select>
-                              {/* </Button> */}
+                            
                               <Button
                                 variant="ghost"
                                 onClick={() => {
@@ -636,15 +970,9 @@ const Trips = () => {
               })
             )}
           </Tbody>
-          {/* <Tfoot>
-            <Tr>
-              <Th>To convert</Th>
-              <Th>into</Th>
-              <Th isNumeric>multiply by</Th>
-            </Tr>
-          </Tfoot> */}
+          
         </Table>
-      </TableContainer>
+      </TableContainer> */}
     </div>
   );
 };

@@ -1,10 +1,11 @@
-import React, { useState } from "react";
-import { Modal, message } from "antd";
-import { Box, Input, Text, Button, Flex,FormLabel } from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
+import { Modal, message, Button } from "antd";
+import { Box, Input, Text, Flex, FormLabel, Select } from "@chakra-ui/react";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { LoadScript } from "@react-google-maps/api";
+import axios from "axios";
 
-
+// const { Option } = Select;
 
 const googleMapsApiKey = "AIzaSyBPnipzrKgRKIcHt1Bh_4xy1fZi7FUdUYs";
 
@@ -15,26 +16,119 @@ const Airportport = () => {
   const [clickedPosition2, setClickedPosition2] = useState(null);
   const [address, setAddress] = useState("");
   const [address2, setAddress2] = useState("");
-  const[startTime,setStartTime] = useState();
-  const[EndTime,setEndTime] = useState();
+  const [startTime1, setStartTime] = useState();
+  const [EndTime, setEndTime] = useState();
+  const [vehicleId1, setVehicleId] = useState();
 
+  console.log("position one is", clickedPosition);
 
+  const [format1, setformat1] = useState();
+  const [foramt2, setForamt2] = useState();
+  const [availabeCabs, setAvailableCabs] = useState();
+  console.log("formate 1 is", format1);
+  console.log("start time i is ", startTime1);
 
+  // "boardingCoordinates": [77.0773551,28.362964],
+  //  "destinationCoordinates": [77.100281,28.556160],
 
-  const handleDateChange = (e) => {
-    const inputDate = e.target.value; // This gets the local date-time format
-    const formattedDate = new Date(inputDate).toISOString(); // Converts it to ISO 8601 format with Z
-    setStartTime(formattedDate);
+  const changeVehicle = (e) => {
+    console.log("value is ", e.target.value);
+    setVehicleId(e.target.value);
   };
 
+  console.log("vehicle id is", vehicleId1);
+  const handleDateChange = (e) => {
+    setStartTime(e.target.value);
+
+    const date = new Date(e.target.value);
+    const isoDate = date.toISOString();
+    setformat1(isoDate);
+  };
+
+  const findCabs = async () => {
+    try {
+      const a = Object.values(clickedPosition);
+      const boardingCoordinates = a.reverse();
+      const b = Object.values(clickedPosition2);
+      const destinationCoordinates = b.reverse();
+
+      function formatDateTime(isoDate) {
+        const date = new Date(isoDate);
+
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0"); 
+        const year = date.getFullYear();
+
+        
+        let hours = date.getHours();
+
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        const ampm = hours >= 12 ? "PM" : "AM";
+
+
+        hours = hours % 12 || 12; 
+        hours = String(hours).padStart(2, "0");
+
+        return `${day}-${month}-${year} ${hours}:${minutes}${ampm}`;
+      }
+
+      const startTime = formatDateTime(startTime1);
+      
+
+      const response = await axios.post(
+        "http://102.133.144.226:8000/api/v1/trip/findcabs",
+        {
+          boardingCoordinates,
+          destinationCoordinates,
+          startTime,
+        }
+      );
+
+      console.log("response data is following", response.data.availableCabs);
+      setAvailableCabs(response.data.availableCabs);
+    } catch (error) {}
+  };
+
+  const postAirdrop = async () => {
+    try {
+      const a = Object.values(clickedPosition);
+      const boardingCoordinates = a.reverse();
+      const b = Object.values(clickedPosition2);
+      const destinationCoordinates = b.reverse();
+      const startTime = format1;
+      const endTime = foramt2;
+      const vehicleId = vehicleId1;
+
+      const employeeId = "66c86250b01896ae48684d11";
+
+      const response = await axios.post(
+        "http://102.133.144.226:8000/api/v1/trip/airdrop",
+        {
+          employeeId,
+          boardingCoordinates,
+          destinationCoordinates,
+          startTime,
+          endTime,
+          vehicleId,
+        }
+      );
+
+      console.log("boardingCoordinates", response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // useEffect(() => {
+  //   findCabs();
+  // }, []);
 
   const handleDateChange1 = (e) => {
-    const inputDate = e.target.value; // This gets the local date-time format
-    const formattedDate = new Date(inputDate).toISOString(); // Converts it to ISO 8601 format with Z
-    setEndTime(formattedDate);
+    setEndTime(e.target.value);
+    const date = new Date(e.target.value);
+    const isoDate = date.toISOString();
+    setForamt2(isoDate);
   };
-  console.log("start",startTime);
-  console.log("End",EndTime);
 
   const handleModalOpen = (type) => {
     if (type === "start") setIsModal2Visible(true);
@@ -46,8 +140,8 @@ const Airportport = () => {
     else if (type === "destination") setIsModalVisible(false);
   };
 
-   const empId = localStorage.getItem('empId');
-   console.log("dfgdfgf",empId);
+  const empId = localStorage.getItem("empId");
+  console.log("dfgdfgf", empId);
 
   const getGeocode = (lat, lng, setAddressFunc) => {
     const geocoder = new window.google.maps.Geocoder();
@@ -82,30 +176,16 @@ const Airportport = () => {
         p="30px"
         borderRadius="10px"
       >
-
-     <FormLabel>Enter Start Time</FormLabel>
+        <FormLabel>Enter Start Time</FormLabel>
         <Input
-        
           type="datetime-local"
           placeholder={"Enter Start Time"}
           mb="20px"
           border="1px solid black"
           h="40px"
-          value={startTime ? startTime.substring(0, 16) : ""}  
+          value={startTime1}
           onChange={handleDateChange}
         />
-        <FormLabel>Enter End Time</FormLabel>
-        <Input
-          type="datetime-local"
-          placeholder="Enter End Time"
-          mb="20px"
-          border="1px solid black"
-          h="40px"
-
-          value={EndTime? EndTime.substring(0, 16) : ""}
-          onChange={handleDateChange1}
-        />
-        {/* <Input placeholder="Enter Date" mb="20px" border="1px solid black" h="40px" /> */}
 
         <Flex
           justifyContent="space-between"
@@ -129,9 +209,45 @@ const Airportport = () => {
         >
           <Text fontSize="15px">Select destination point</Text>
           <Button h="30px" onClick={() => handleModalOpen("destination")}>
-            MapView
+            Map View
           </Button>
         </Flex>
+
+        <Button type="primary" onClick={findCabs} style={{marginBottom:"15px"}}>
+          Get Cabs
+        </Button>
+
+        <Select
+          placeholder="Change Vehicle"
+          border="1px solid black"
+          mb="20px"
+          h="40px"
+          onChange={changeVehicle}
+          value={vehicleId1}
+        >
+          {Array.isArray(availabeCabs) &&
+            availabeCabs.map((option) => (
+              <option key={option?.cab?._id} value={option?.cab?._id}>
+                {option?.cab?.vehicle_number}
+              </option>
+            ))}
+        </Select>
+
+        <FormLabel>Enter End Time</FormLabel>
+        <Input
+          type="datetime-local"
+          placeholder="Enter End Time"
+          mb="20px"
+          border="1px solid black"
+          h="40px"
+          value={EndTime}
+          onChange={handleDateChange1}
+        />
+        {/* <Input placeholder="Enter Date" mb="20px" border="1px solid black" h="40px" /> */}
+
+        <Button onClick={postAirdrop} type="primary">
+          submit
+        </Button>
       </Box>
 
       {/* Modal for Starting Point */}

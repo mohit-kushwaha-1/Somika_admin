@@ -269,7 +269,6 @@ import {
   Switch,
 } from "antd";
 
-
 // import {
 //   Modal,
 //   ModalOverlay,
@@ -282,11 +281,7 @@ import {
 // } from "@chakra-ui/react";
 import { Select } from "@chakra-ui/react";
 
-import {
-  Text,
-  Box,
-  Flex,
-} from "@chakra-ui/react";
+import { Text, Box, Flex } from "@chakra-ui/react";
 
 import {
   List,
@@ -294,7 +289,7 @@ import {
   ListIcon,
   OrderedList,
   UnorderedList,
-} from '@chakra-ui/react'
+} from "@chakra-ui/react";
 
 // import {  message} from 'antd';
 
@@ -307,6 +302,7 @@ const Trips = () => {
   const [cabs, setCabs] = useState([]);
   const [record1, setRecord] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showCabs,setShowCabs] = useState(false);
 
   useEffect(() => {
     fetchTrip();
@@ -317,79 +313,66 @@ const Trips = () => {
   // }, []);
 
   const handleRow = async (record) => {
-    
-      console.log("Clicked row data:", record);
-      setRecord(record);  // Update state with clicked row data
-      setIsModalOpen(true);  // Open modal if necessary
-  
-      // Since setState is asynchronous, resolve the promise after state is se
-        
+    console.log("Clicked row data:", record);
+    setRecord(record); // Update state with clicked row data
+    setIsModalOpen(true); // Open modal if necessary
+    setShowCabs(false);
+    // Since setState is asynchronous, resolve the promise after state is se
 
-      setTimeout(async() => {
-        try {
-
-          const currentLocation = record?.currentLocationID;
-          const destinationLocation = record?.destinationLocationID  ;    
-          const bookingDate = record?.bookingDate1;
-          const getCurrentTime = () => {
-            const currentTime = new Date();
-            return currentTime.toLocaleTimeString("en-US", {
-              hour: "numeric",
-              minute: "numeric",
-              hour12: true,
-            });
-          };
-    
-          const requestedStartTime = getCurrentTime();
-          console.log("request time", getCurrentTime());
-          const data = await axios.post(
-            "http://102.133.144.226:8000/api/v1/trip/getNearestCab",
-            {
-              currentLocation,
-              destinationLocation,
-              bookingDate,
-              requestedStartTime,
-            }
-          );
-    
-          console.log("data is is is", data);
-    
-          const filter = data?.data?.suitableCabs?.filter((item) => {
-            return item?.cab?.type === "NA";
+    setTimeout(async () => {
+      try {
+        const currentLocation = record?.currentLocationID;
+        const destinationLocation = record?.destinationLocationID;
+        const bookingDate = record?.bookingDate1;
+        const getCurrentTime = () => {
+          const currentTime = new Date();
+          return currentTime.toLocaleTimeString("en-US", {
+            hour: "numeric",
+            minute: "numeric",
+            hour12: true,
           });
-    
-          if (filter) {
-            setCabs(filter);
-            console.log("etcabs is running");
+        };
+
+        const requestedStartTime = getCurrentTime();
+        console.log("request time", getCurrentTime());
+        const data = await axios.post(
+          "http://102.133.144.226:8000/api/v1/trip/getNearestCab",
+          {
+            currentLocation,
+            destinationLocation,
+            bookingDate,
+            requestedStartTime,
           }
-    
-          console.log("filter data is", filter);
-        } catch (error) {
-          console.log(error);
+        );
+
+        console.log("data is is is", data);
+
+        const filter = data?.data?.suitableCabs?.filter((item) => {
+          return item?.cab?.type === "NA";
+        });
+
+        if (filter) {
+          setCabs(filter);
+          console.log("etcabs is running");
         }
-      }, 100); 
-      
-      
-   
+
+        console.log("filter data is", filter);
+      } catch (error) {
+        console.log(error);
+      }
+    }, 100);
   };
 
-  console.log("vehicle id is following",record1);
-
-
-  
-
+  console.log("vehicle id is following", record1);
 
   const handleAlloted = () => {
     setIsModalOpen(true);
-    
   };
-  
 
-  const handleCancel = ()=>{
+  const handleCancel = () => {
     setIsModalOpen(false);
     setCabs([]);
-
-  }
+  };
 
   const fetchTrip = async () => {
     setLoading(true);
@@ -440,20 +423,20 @@ const Trips = () => {
           const formatDate = (dateString) => {
             const date = new Date(dateString);
             if (isNaN(date.getTime())) {
-              return "No Date Available"; 
+              return "No Date Available";
             }
-            
+
             return date
               .toLocaleDateString("en-GB", {
                 day: "2-digit",
                 month: "2-digit",
                 year: "numeric",
               })
-              .replace(/\//g, "-"); 
+              .replace(/\//g, "-");
           };
 
           let bookingDate = formatDate(item?.startTime);
-           
+
           let currentLocation = item?.boardingPoint._id;
           let destinationLocation = item?.destinationPoint._id;
           const returndata = {
@@ -464,10 +447,10 @@ const Trips = () => {
             DestinationPonint: item?.destinationPoint?.companyId?.name,
             starttime: formattedTime,
             status: item?.status,
-            currentLocationID:currentLocation,
-            destinationLocationID:destinationLocation,
-            bookingDate1:bookingDate,
-            requestId:item?._id,
+            currentLocationID: currentLocation,
+            destinationLocationID: destinationLocation,
+            bookingDate1: bookingDate,
+            requestId: item?._id,
           };
 
           return returndata;
@@ -491,7 +474,7 @@ const Trips = () => {
   //   try {
 
   //     const currentLocation = record1?.currentLocationID;
-  //     const destinationLocation = record1?.destinationLocationID  ;    
+  //     const destinationLocation = record1?.destinationLocationID  ;
   //     const bookingDate = record1?.bookingDate1;
   //     const getCurrentTime = () => {
   //       const currentTime = new Date();
@@ -537,8 +520,8 @@ const Trips = () => {
       const requestId = record1?.requestId;
       // console.log("vehicale id is",vehicleId);
 
-      if(!vehicleId){
-            message.error(" Please select Vehicle")
+      if (!vehicleId) {
+        message.error(" Please select Vehicle");
       }
       const data = await axios.post(
         "http://102.133.144.226:8000/api/v1/trip/intercity/approve",
@@ -549,13 +532,13 @@ const Trips = () => {
         }
       );
 
-      if (data.data.message==="Trip approved and booked successfully") {
+      if (data.data.message === "Trip approved and booked successfully") {
         message.success("trip booked succesfully");
         fetchTrip();
-        setIsModalOpen(false);
+        // setIsModalOpen(false);
         setVehicleId("");
+        setShowCabs(true);
         cabs([]);
-        
       }
       console.log(data);
     } catch (error) {
@@ -563,32 +546,31 @@ const Trips = () => {
     }
   };
 
-  const handleReject = async()=>{
-  
-      try {
+  const handleReject = async () => {
+    try {
       const status = "rejected";
       const requestId = record1?.requestId;
-      console.log("vehicale id is",vehicleId);
+      console.log("vehicale id is", vehicleId);
       const data = await axios.post(
         "http://102.133.144.226:8000/api/v1/trip/intercity/approve",
         {
           requestId,
-          vehicleId,
+          // vehicleId,
           status,
         }
       );
 
-      if (data) {
+      if (data.data.message === "Trip approved and booked successfully") {
         message.success("trip Reject succesfully");
-        setIsModalOpen(false);
+        // setIsModalOpen(false);
         fetchTrip();
+        setShowCabs(true);
       }
       console.log(data);
     } catch (error) {
       console.log(error);
     }
   };
-       
 
   const columns = [
     {
@@ -630,7 +612,7 @@ const Trips = () => {
       render: (_, record) => {
         let color;
         let statusText;
-    
+
         // Determine color and text based on the status value
         if (record.status === "approved") {
           color = "green";
@@ -642,23 +624,20 @@ const Trips = () => {
           color = "red";
           statusText = "Rejected";
         }
-    
-        return (
-          <span style={{ color }}>
-            {statusText}
-          </span>
-        );
-      }
+
+        return <span style={{ color }}>{statusText}</span>;
+      },
     },
-    
+
     {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
         <>
           <Button
-
-            onClick={()=>{handleRow(record)}}
+            onClick={() => {
+              handleRow(record);
+            }}
           >
             Update
           </Button>
@@ -679,102 +658,118 @@ const Trips = () => {
         //     handleRowClick(record); // Trigger the click handler
         //   },
         // })}
-
-
-
       />
 
+      <Modal
+        title={<strong>Intercity Request</strong>}
+        onCancel={handleCancel}
+        open={isModalOpen}
+      >
+        <Text mt={"20px"} fontWeight={"bold"}>
+          Emp Details
+        </Text>
+        <Flex>
+          <Box mr={"20px"}>
+            <Text color={"black"} fontWeight={"bold"}>
+              Name
+            </Text>
+            <Text color={"black"} fontWeight={"bold"}>
+              Email
+            </Text>
+            <Text color={"black"} fontWeight={"bold"}>
+              Boarding Point
+            </Text>
+            <Text color={"black"} fontWeight={"bold"}>
+              Destination Point
+            </Text>
+            <Text color={"black"} fontWeight={"bold"}>
+              Start Time
+            </Text>
+          </Box>
+          <Box>
+            <Text color={"black"}>{record1?.name}</Text>
+            <Text color={"black"}>{record1?.Email}</Text>
+            <Text color={"black"}>{record1?.BoradingPoint}</Text>
+
+            <Text color={"black"}>{record1?.DestinationPonint}</Text>
+            <Text color={"black"}>{record1?.starttime}</Text>
+          </Box>
+        </Flex>
+
+        <Select
+          placeholder="Select Vehicle"
+          value={vehicleId}
+          onChange={(e) => {
+            setVehicleId(e.target.value);
+          }}
+          style={{ marginBottom: "20px" }}
+        >
+          {cabs?.map((item) => {
+            return (
+              <>
+                <option key={item.id} value={item?.cab?.vehicle_id}>
+                  {item?.cab?.vehicle_number}
+                </option>
+              </>
+            );
+          })}
+        </Select>
+
+        <Button
+          type="primary"
+          onClick={handleAprove}
+          style={{ marginRight: "20px" }}
+        >
+          Approve
+        </Button>
+        <Button type="primary" danger onClick={handleReject}>
+          Reject
+        </Button>
 
 
-       <Modal title={<strong>Intercity Request</strong>}   onCancel={handleCancel} open={isModalOpen}>
-              <Text mt={"20px"} fontWeight={"bold"}>Emp Details</Text>
-                   <Flex>
-                                <Box mr={"20px"}>
-                                  <Text color={"black"} fontWeight={"bold"}>Name</Text>
-                                  <Text color={"black"} fontWeight={"bold"}>Email</Text>
-                                  <Text color={"black"} fontWeight={"bold"}>Boarding Point</Text>
-                                  <Text color={"black"} fontWeight={"bold"}>Destination Point</Text>
-                                  <Text color={"black"} fontWeight={"bold"}>Start Time</Text>
-                                  
-                                </Box>
-                                <Box>
-                                  <Text color={"black"}>
-                                    {record1?.name}
-                                  </Text>
-                                  <Text color={"black"}>
-                                    {record1?.Email}
-                                  </Text>
-                                  <Text color={"black"}>
-                                     {record1?.BoradingPoint}
-                                  </Text>
+{
+  showCabs?(<>
 
-                                  <Text color={"black"}>
-                                    {record1?.DestinationPonint}
-                                  </Text>
-                                  <Text color={"black"}>
-                                    {record1?.starttime}
-                                  </Text>
-                                </Box>
-                              </Flex>
+<Text mt={"20px"} fontWeight={"bold"}>
+          {" "}
+          Availbale Cabs
+        </Text>
 
+        <Flex mb={"15px"}>
+          <UnorderedList>
+            {cabs ? (
+              cabs?.map((item) => {
+                return (
+                  <>
+                    <ListItem>
+                      <Flex>
+                        <Box mr={"20px"}>
+                          <Text mr={"5px"}>Vehicle Number</Text>
+                          <Text color={"green"}>
+                            {item?.cab?.vehicle_number}
+                          </Text>
+                        </Box>
 
+                        <Box>
+                          <Text mr={"5px"}>Capacity</Text>
+                          <Text mr={"5px"} color={"green"}>
+                            {item?.cab?.capacity}
+                          </Text>
+                        </Box>
+                      </Flex>
+                    </ListItem>
+                  </>
+                );
+              })
+            ) : (
+              <h1>Loading cabs</h1>
+            )}
+          </UnorderedList>
+        </Flex>
 
-                              <Text mt={"20px"} fontWeight={"bold"}>Availbale Cabs</Text>
-
-                              <Flex mb={"15px"} >
-                                <UnorderedList>
-                                  {
-                                  
-                                  cabs?(cabs?.map((item) => {
-                                    return (
-                                      <>
-                                        <ListItem>
-                                          <Flex>
-                                            <Box mr={"20px"}>
-                                              <Text mr={"5px"}>
-                                                Vehicle Number
-                                              </Text>
-                                              <Text color={"green"}>
-                                                {item?.cab?.vehicle_number}
-                                              </Text>
-                                            </Box>
-
-                                            <Box>
-                                              <Text mr={"5px"}>Capacity</Text>
-                                              <Text mr={"5px"} color={"green"}>
-                                                {item?.cab?.capacity}
-                                              </Text>
-                                            </Box>
-                                          </Flex>
-                                        </ListItem>
-                                      </>
-                                    );
-                                  })):(<h1>Loading cabs</h1>)
-                                
-                                
-                                }
-                                </UnorderedList>
-                              </Flex >
-
-
-                              <Select placeholder="Select Vehicle" value={vehicleId} onChange={(e)=>{setVehicleId(e.target.value)}} style={{marginBottom:"20px"}}>
-                                     {
-                                      cabs?.map((item)=>{
-                                          
-                                        return (
-                                             <>
-
-                                    <option key={item.id} value={item?.cab?.vehicle_id}  >
-                                     {item?.cab?.vehicle_number}
-                                     </option>
-                                             </>
-                                        )
-                                      })
-                                     }
-                              </Select>
-
-                              <Button type="primary" onClick={handleAprove} style={{marginRight:"20px"}}>Approve</Button>
-                              <Button type="primary" danger  onClick={handleReject}>Reject</Button>
+  </>):(<><h1></h1></>)
+}
+        
       </Modal>
 
       {/* <TableContainer>

@@ -37,15 +37,25 @@ const Drivers = () => {
   const [record1, setRecord] = useState();
   const[changeVehicledata,setChangeVehicleData] = useState();
 
+  const[changeImage,setChangeImage] = useState(false);
+  const[ImageTobeuploaded,setImageTobeuploaded] = useState();
+
   const showModal2 = () => {
     setIsModal2Visible(true);
   };
+
+
+
+  const handleImageChange = ()=>{
+    setChangeImage(true);
+  }
 
 
   
   const handleRowClick = (record) => {
     console.log("Clicked row data:", record);
     setRecord(record);
+   
     // Access the clicked row's data here
     // You can now use 'record' to get the details of the clicked row
   };
@@ -248,22 +258,83 @@ const Drivers = () => {
       license: values.license,
       address: values.address,
       vehicle_id: values.vehicle_id,
-      status: values.status ? "Active" : "Inactive",
+      status:  'Active',
     };
 
-    console.log(driverData);
+
+
+
+
+    
+    
+
+    
 
     try {
       if (isEditing) {
+
+
+        const driverData2 = {
+          driver_id: {
+            type: values.driver_id_type,
+            number: values.driver_id_number,
+          },
+          photo: record1.photo,
+          name: values.name,
+          country_code: values.country_code,
+          number: values.number,
+          alternate_num: values.alternate_num,
+          license: values.license,
+          address: values.address,
+          vehicle_id: values.vehicle_id,
+          status:  'Active',
+        };
+
+
+        const driverData1 = {
+          driver_id: {
+            type: values.driver_id_type,
+            number: values.driver_id_number,
+          },
+          photo: image1,
+          name: values.name,
+          country_code: values.country_code,
+          number: values.number,
+          alternate_num: values.alternate_num,
+          license: values.license,
+          address: values.address,
+          vehicle_id: values.vehicle_id,
+          status:  'Active',
+        };
+
+        if(changeImage){
+          setImageTobeuploaded(driverData1)
+        }
+
+        if(!changeImage){
+          setImageTobeuploaded(driverData2)
+        }
+
        const response =  await axios.put(
           `http://102.133.144.226:8000/api/v1/driver/${editingDriver._id}`,
 
           driverData
         );
+
+        if(response.data){
+          setImageTobeuploaded("");
+          console.log("image should be change to ",response.data)
+          setChangeImage(false);
+          
+        }
         message.success("Driver updated successfully.");
         // console.log("respose is",response.data)
         setPhoto("");
       } else {
+
+
+
+
         await axios.post(
           "http://102.133.144.226:8000/api/v1/driver",
           driverData
@@ -322,7 +393,7 @@ const Drivers = () => {
       // console.log("result sdf df", result);
       if (result.message) {
         fetchData(); // Reload employee data
-        // message.success(`Driver status updated `);
+        message.success(`Driver status has been changed `);
       } else {
         message.error("Failed to update Driver status.");
       }
@@ -343,7 +414,7 @@ const Drivers = () => {
       );
       setVehicleData(response.data);
       // console.log("selected vehicles is follow",response.data);
-      message.success("Vehicle data fetched successfully.");
+      message.success("Vehicle Changed Successfully.");
     } catch (error) {
       message.error("Error fetching vehicle data.");
       console.error("Error fetching vehicle data:", error);
@@ -363,9 +434,11 @@ const Drivers = () => {
         alternate_num: editingDriver?.alternate_num,
         license: editingDriver?.license,
         address: editingDriver?.address,
-        vehicle_id: editingDriver?.vehicle_id?._id,  // Use _id for vehicle selection
+        vehicle_id: editingDriver?.vehicle_id?.vehicle_number,  // Use _id for vehicle selection
         status: editingDriver?.status === "Active",  // Set status switch correctly
+        // photo:image1,
       });
+
     } else if(!editingDriver) {
       // Clear form fields when adding a new driver
       form.resetFields(); 
@@ -390,11 +463,11 @@ const Drivers = () => {
       dataIndex: "number",
       key: "phone_number",
     },
-    {
-      title: "Alternate Number",
-      dataIndex: "alternate_num",
-      key: "alternate_number",
-    },
+    // {
+    //   title: "Alternate Number",
+    //   dataIndex: "alternate_num",
+    //   key: "alternate_number",
+    // },
     {
       title: "Address",
       dataIndex: "address",
@@ -413,7 +486,7 @@ const Drivers = () => {
         <img
           src={
             record?.photo
-              ? `http://102.133.144.226:8000/${record.photo}`
+              ? `${record.photo}`
               : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKgAAACUCAMAAAAwLZJQAAAAMFBMVEXk5ueutLfp6+y2vL6rsbWor7KyuLu6v8LT1tjY29zb3t/Gysze4eLDx8rP09TJzc8ZZtZUAAAD90lEQVR4nO2c246jMAxAickVCPn/v90And22gtaJwWa0OS8jjebhyIlNLs50XaPRaDQajUaj0Wg0Go1G10E3DWGex5hJPgwdgLTSHtD56Kw2Ri/kH9aNvrudKgSnlFYvaK1snO6lGnrzZvkja1yQlvtLjqbe19zi6u4S1fhBc1VVSVqxW8JpP2sumF48qDC/p9B+UK30TE0Iy011Fo1pNFhRZQRNYcR7LjEVE02Y6fkUUy+jCXOZZzadZExLPZXuRTz7YlGlo4DnWO65TFP21J8qNBe4RcHVBHQZfGbToaSCPmMHVk9wlZ5Kj6yiodYzw1pMY90MXTCJcZZOlhBRzsT3tam0hpQvnWpr0wO+CgWUgOYKxeXZBaIo17YECteh77DtSuqr/UOUbffcE0W5FnsDqYpmuNbPgSpqmb6inujJ9bmHmeqpeb5N5bvPd5g+oieI8lT8/0iUaY7Ss14zlSfKPmSDS5Rc8Hk8iRuRPPKOSRR+y6Lk1yzzyPWJ7UB3Im5F2LahQItoz7cLrTob/YHzImegiBo2za7qWPxvQPlGPkPIe6al04P6jxPbZ2kDqs8d+Tb1D9PaUsp91QSpzlTg/qYq8bXlv2KuWz4L3IaW3YE/ELkJB0QzySvayfQWlBZTiQm6UTZNNdfZ2J5p0TTlvVx8AfAxzfEUbdPBtGetnv0g3aJlMcNveJci+6SvvWTact5/HgLhS1CNEx/2H+ZPbZlWqN1pD4DU704ArRz/cukjS4ezfevK1caO4X5dzpkhOW3WWaC1US4JVvgvAEA3BO99mG7a2/4AXpHW2WGxmsKcYnSuzzjn4jjnwN5GdxX0KS4vBcxrMq2/yVN1nMMwyeYUwOCj65X5VPCXVw7WxSSX/xCiXZ8vYMh/ZR3/RiSPt4/q4DHDMcYsJYsvsAA+Hj25+BbYPAsS08IUumSR473vqhTLS5cwfkwdZFydv9YVJod6yPBdVfcXLlagO0lzVVX2IlWYxroEOsS4cIEqzITj8AO0iqcXq4l4W3ekevb4f9pr0DDuzPOTgkc2xZwXVBiKj+0KVU/aTJPab1GcMvy060QkuidnP7jL47lCPkIj9LEXmpJOU4hd1yWQjiUZPRfqM4ojj56oPTqnt7YVUntpQmxirzGtekpQ+wSMZFqzT2UrTM9UTFPuCbpRMU0lNFX5C+f6DgcqZZ2QBRddZ1OY+byfpBeKGuJIDVhE9IgPKfM3/o2CTjNiNyNVFL0zoT6sooLvP6A2W1PBHqDI1aYN7KthQP9Lj6tEsZtS0ZxfwZXSidi9Tgf57zcGaU9sR+T1JyNfwTV2VPYxngmukoqt8P5hUKKj7aXBLUrhBqBEG41b8QcZDDNkChgRlgAAAABJRU5ErkJggg==" // Dummy image URL
           }
           alt="Photo"
@@ -425,10 +498,14 @@ const Drivers = () => {
 
 
     {
-      title: "Alloted Vehicles",
+      title: "Allot Vehicle",
       key: "status",
-      render: () => (
-        <Button onClick={() => handleAlloted()}>Change Vehicle</Button>
+      render: (_, record) => (
+        record?.vehicle_id?.vehicle_number ? (
+          <> <h1 onClick={() => handleAlloted(record)} style={{cursor:"pointer"}}> {record?.vehicle_id?.vehicle_number}</h1> </>
+        ) : (
+          <Button onClick={() => handleAlloted(record)}>Allote Vehicle</Button>
+        )
       ),
     },
      
@@ -475,12 +552,15 @@ const Drivers = () => {
         columns={columns}
         dataSource={data}
         loading={loading}
+        
         rowKey={(record) => record._id}
         onRow={(record) => ({
           onClick: () => {
             handleRowClick(record); // Trigger the click handler
           },
         })}
+
+        scroll={{ x: 'max-content' }}
       />
       <Modal
         title={isEditing ? "Edit Driver" : "Add Driver"}
@@ -515,6 +595,51 @@ const Drivers = () => {
             <Input placeholder="Enter the driver's name" />
           </Form.Item>
 
+
+
+          {/* {photo && (
+            <div>
+              <img
+                src={URL.createObjectURL(photo)}
+                alt="Uploaded"
+                height="100px"
+                width="100px"
+              />
+            </div>
+          )} */}
+
+          {
+            isEditing?(<> 
+            
+             <h1>welcome</h1>
+             <img src={`http://102.133.144.226:8000/${record1?.photo}`} alt="" style={{width:"100px",height:"100px"}} onClick={handleImageChange}/>
+            <Form.Item
+              label="Photo"
+              name="photo"
+              // onChange={(e) => setPhoto(e.target.files[0])}
+              
+              rules={[
+                { required: true, message: "Please upload the driver's photo!" },
+              ]}
+            >
+              <Upload
+                listType="picture"
+                beforeUpload={() => false}
+                onChange={uploadImage}
+  
+                
+                showUploadList={false}
+                customRequest={({ file, onSuccess }) => {
+                  setTimeout(() => {
+                    onSuccess("ok");
+                  }, 0);
+                }}
+              >
+                <Button icon={<UploadOutlined />}>Upload Photo</Button>
+              </Upload>
+            </Form.Item></>):(<>
+            
+            
           <Form.Item
             label="Photo"
             name="photo"
@@ -527,6 +652,8 @@ const Drivers = () => {
               listType="picture"
               beforeUpload={() => false}
               onChange={uploadImage}
+
+              
               showUploadList={false}
               customRequest={({ file, onSuccess }) => {
                 setTimeout(() => {
@@ -537,17 +664,32 @@ const Drivers = () => {
               <Button icon={<UploadOutlined />}>Upload Photo</Button>
             </Upload>
           </Form.Item>
+            {photo && (
+              <div>
+                <img
+                  src={URL.createObjectURL(photo)}
+                  alt="Uploaded"
+                  height="100px"
+                  width="100px"
+                />
+              </div>
+            )}
+            
+            
+            
+            </>)
+          }
 
-          {photo && (
-            <div>
+          {/* {
+            isEditing?(<>h1 welcome</>):(<div>
               <img
                 src={URL.createObjectURL(photo)}
                 alt="Uploaded"
                 height="100px"
                 width="100px"
               />
-            </div>
-          )}
+            </div>)
+          } */}
 
           <Form.Item
             label="Driver ID Type"
@@ -641,14 +783,14 @@ const Drivers = () => {
             </Select>
           </Form.Item>
 
-          <Form.Item
+          {/* <Form.Item
             label="Status"
             name="status"
             valuePropName="checked"
             initialValue={false}
           >
             <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
-          </Form.Item>
+          </Form.Item> */}
 
           <Form.Item>
             <Button type="primary" htmlType="submit">

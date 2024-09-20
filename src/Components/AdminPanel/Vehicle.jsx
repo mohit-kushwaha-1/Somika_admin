@@ -24,6 +24,15 @@ const Vehicle = () => {
 
   const[image1,setImage] = useState();
 
+
+
+  // const [selectedLocation, setSelectedLocation] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState("");
+  
+
+  // Function to handle change event
+  
+
   const uploadImage = async (file) => {
     console.log(file);
     const formData = new FormData();
@@ -111,6 +120,32 @@ const Vehicle = () => {
     }
   };
 
+
+  const handleLocationChange = (value) => {
+    
+      // If a value is selected, store it in state
+      setSelectedLocation(value);
+      // fetchDropdownData();
+      console.log("Selected location:", value);
+  };
+
+
+  useEffect(()=>{
+    if(selectedLocation){
+      const allowlo = allowedLocations.filter((item)=>{
+         return item.value !==selectedLocation;
+      })
+      setSelectedLocation("");
+      setAllowedLocations(allowlo);
+      console.log("filter data is",allowlo);
+      
+  }
+  else{
+    setAllowedLocations(allowedLocations);
+    setSelectedLocation("");
+    console.log("wehfrwhejrk");
+  }
+  },[selectedLocation])
   const fetchDropdownData = async () => {
     try {
 
@@ -135,6 +170,7 @@ const Vehicle = () => {
         label: location.label,
       }));
       setBaseLocations(baseLocationsData);
+      console.log("basel locaion is ",baseLocationsData);
 
 
       const allowedLocationsResponse = await fetch('http://102.133.144.226:8000/api/v1/companies/getAllLocation');
@@ -143,7 +179,12 @@ const Vehicle = () => {
         value: location.value,
         label: location.label,
       }));
-      setAllowedLocations(allowedLocationsData);
+
+
+      console.log("selected check ",selectedLocation);
+
+
+      
 
     } catch (error) {
       console.error('Error fetching dropdown data:', error);
@@ -264,6 +305,34 @@ const Vehicle = () => {
 
 
 
+  // const [selectedValues, setSelectedValues] = useState([]);
+  // const handleChange = (value) => {
+  //   if (value.includes('selectAll')) {
+  //     // If "Select All" is clicked, select all options
+  //     setSelectedValues(allowedLocations.map(loc => loc.value).concat('selectAll'));
+  //   } else if (value.length === allowedLocations.length) {
+  //     // If all options are selected, set "Select All" as well
+  //     setSelectedValues([...value, 'selectAll']);
+  //   } else {
+  //     // Otherwise, update selected values
+  //     setSelectedValues(value.filter(val => val !== 'selectAll'));
+  //   }
+  // };
+
+  // const handleDeselect = (value) => {
+  //   if (value === 'selectAll') {
+  //     // If "Select All" is deselected, clear all selections
+  //     setSelectedValues([]);
+  //   } else if (selectedValues.length === allowedLocations.length) {
+  //     // If all options are deselected, remove "Select All"
+  //     setSelectedValues(value.filter(val => val !== 'selectAll'));
+  //   } else {
+  //     // Otherwise, update selected values
+  //     setSelectedValues(value);
+  //   }
+  // };
+  
+  
 
   const columns = [
     {
@@ -343,7 +412,7 @@ const Vehicle = () => {
         <img
           src={
             record?.photo
-              ? `http://102.133.144.226:8000/${record.photo}`
+              ? `${record.photo}`
               : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKgAAACUCAMAAAAwLZJQAAAAMFBMVEXk5ueutLfp6+y2vL6rsbWor7KyuLu6v8LT1tjY29zb3t/Gysze4eLDx8rP09TJzc8ZZtZUAAAD90lEQVR4nO2c246jMAxAickVCPn/v90And22gtaJwWa0OS8jjebhyIlNLs50XaPRaDQajUaj0Wg0Go1G10E3DWGex5hJPgwdgLTSHtD56Kw2Ri/kH9aNvrudKgSnlFYvaK1snO6lGnrzZvkja1yQlvtLjqbe19zi6u4S1fhBc1VVSVqxW8JpP2sumF48qDC/p9B+UK30TE0Iy011Fo1pNFhRZQRNYcR7LjEVE02Y6fkUUy+jCXOZZzadZExLPZXuRTz7YlGlo4DnWO65TFP21J8qNBe4RcHVBHQZfGbToaSCPmMHVk9wlZ5Kj6yiodYzw1pMY90MXTCJcZZOlhBRzsT3tam0hpQvnWpr0wO+CgWUgOYKxeXZBaIo17YECteh77DtSuqr/UOUbffcE0W5FnsDqYpmuNbPgSpqmb6inujJ9bmHmeqpeb5N5bvPd5g+oieI8lT8/0iUaY7Ss14zlSfKPmSDS5Rc8Hk8iRuRPPKOSRR+y6Lk1yzzyPWJ7UB3Im5F2LahQItoz7cLrTob/YHzImegiBo2za7qWPxvQPlGPkPIe6al04P6jxPbZ2kDqs8d+Tb1D9PaUsp91QSpzlTg/qYq8bXlv2KuWz4L3IaW3YE/ELkJB0QzySvayfQWlBZTiQm6UTZNNdfZ2J5p0TTlvVx8AfAxzfEUbdPBtGetnv0g3aJlMcNveJci+6SvvWTact5/HgLhS1CNEx/2H+ZPbZlWqN1pD4DU704ArRz/cukjS4ezfevK1caO4X5dzpkhOW3WWaC1US4JVvgvAEA3BO99mG7a2/4AXpHW2WGxmsKcYnSuzzjn4jjnwN5GdxX0KS4vBcxrMq2/yVN1nMMwyeYUwOCj65X5VPCXVw7WxSSX/xCiXZ8vYMh/ZR3/RiSPt4/q4DHDMcYsJYsvsAA+Hj25+BbYPAsS08IUumSR473vqhTLS5cwfkwdZFydv9YVJod6yPBdVfcXLlagO0lzVVX2IlWYxroEOsS4cIEqzITj8AO0iqcXq4l4W3ekevb4f9pr0DDuzPOTgkc2xZwXVBiKj+0KVU/aTJPab1GcMvy060QkuidnP7jL47lCPkIj9LEXmpJOU4hd1yWQjiUZPRfqM4ojj56oPTqnt7YVUntpQmxirzGtekpQ+wSMZFqzT2UrTM9UTFPuCbpRMU0lNFX5C+f6DgcqZZ2QBRddZ1OY+byfpBeKGuJIDVhE9IgPKfM3/o2CTjNiNyNVFL0zoT6sooLvP6A2W1PBHqDI1aYN7KthQP9Lj6tEsZtS0ZxfwZXSidi9Tgf57zcGaU9sR+T1JyNfwTV2VPYxngmukoqt8P5hUKKj7aXBLUrhBqBEG41b8QcZDDNkChgRlgAAAABJRU5ErkJggg==" // Dummy image URL
           }
           alt="Photo"
@@ -399,6 +468,7 @@ const Vehicle = () => {
         dataSource={data}
         loading={loading}
         rowKey="_id"
+        scroll={{ x: 'max-content' }}
       />
       <Modal
         title={isEditing ? 'Edit Vehicle' : 'Add Vehicle'}
@@ -416,14 +486,14 @@ const Vehicle = () => {
             name="vehicle_id"
             rules={[{ required: true, message: 'Please input the vehicle ID!' }]}
           >
-            <Input placeholder='ANH10 0068485' />
+            <Input placeholder='Enter Vehicle Id' />
           </Form.Item>
           <Form.Item
             label="Vehicle Number"
             name="vehicle_number"
             rules={[{ required: true, message: 'Please input the vehicle number!' }]}
           >
-            <Input placeholder='KCU 192X' />
+            <Input placeholder='Enter Vehicle Number' />
           </Form.Item>
           <Form.Item
             label="Capacity"
@@ -485,11 +555,12 @@ const Vehicle = () => {
           <Form.Item
             label="Add Location"
             name="base_location"
+            // mode="multiple"
             rules={[{ required: true, message: 'Please select the base location!' }]}
           >
-            <Select placeholder="Select Base Location">
+            <Select placeholder="Select Base Location" onChange={handleLocationChange}>
               {baseLocations.map(loc => (
-                <Option key={loc.value} value={loc._id}>
+                <Option key={loc.value} value={loc.value}>
                   {loc.label}
                 </Option>
               ))}
@@ -502,9 +573,17 @@ const Vehicle = () => {
             rules={[{ required: true, message: 'Please select the allowed location!' }]}
           >
             <Select
-              mode="multiple"
-              placeholder="Select Allowed Locations"
+               mode="multiple"
+               placeholder="Select Allowed Locations"
+              //  value={selectedValues}
+              //  onChange={handleChange}
+              //  onDeselect={handleDeselect}
             >
+
+           {/* <Option key="selectAll" value="selectAll">
+            Select All
+          </Option> */}
+
               {allowedLocations.map(loc => (
                 <Option key={loc.value} value={loc.value}>
                   {loc.label}

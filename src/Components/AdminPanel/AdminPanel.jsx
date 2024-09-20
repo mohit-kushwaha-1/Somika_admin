@@ -46,6 +46,7 @@ import CountryCode from "../Masters/CountryCode";
 import { icons } from "antd/es/image/PreviewGroup";
 import AirportTrip from "./AirportTrip";
 import Airportport from "../Airport/Airportport";
+import Notify from "../../Notify";
 
 const { Header, Sider, Content } = Layout;
 
@@ -77,6 +78,9 @@ const AdminPanel = () => {
         return <UserAccess />;
       case "driver":
         return <Drivers />;
+        case "notification":
+        return <Notify setSelectedTab={setSelectedTab}/>;
+
         case "airport":
         return <AirportTrip  setSelectedTab={setSelectedTab} />;
         case "airportbook":
@@ -151,10 +155,10 @@ const AdminPanel = () => {
     employee: { key: "employees", icon: <TeamOutlined />, label: "Employees" },
     driver: { key: "driver", icon: <TruckOutlined />, label: "Driver" },
     vehicle: { key: "vehicle", icon: <CarOutlined />, label: "Vehicle" },
-    trip: { key: "trips", icon: <EnvironmentOutlined />, label: "Trip" },
+    trip: { key: "trips", icon: <EnvironmentOutlined />, label: "Intercity Request" },
     // courier: { key: "couriers", icon: <CarryOutOutlined />, label: "Courier" },
     // request: { key: "requests", icon: <FormOutlined />, label: "Request" },
-    airport: { key: "airport", icon: <TranslationOutlined />, label: "Airport" },
+    airport: { key: "airport", icon: <TranslationOutlined />, label: "Airport Booking" },
     "base location": {
       key: "base-location-reporting",
       icon: <HomeOutlined />,
@@ -197,7 +201,7 @@ const AdminPanel = () => {
 
        <div>
 
-       <Dropdown overlay={menu} trigger={['click']} placement="bottomRight" style={{ width: "300px" }}>
+       {/* <Dropdown overlay={menu} trigger={['click']} placement="bottomRight" style={{ width: "300px" }}>
         <a onClick={(e) => e.preventDefault()} style={{ width: "300px" }}>
           <Badge count={99}>
             <Avatar shape="square" size="large">
@@ -205,7 +209,12 @@ const AdminPanel = () => {
             </Avatar>
           </Badge>
         </a>
-      </Dropdown>
+      </Dropdown> */}
+
+        
+           <Notify/>
+
+         
 
         <Button type="primary" onClick={handleLogout}  style={{ marginLeft: '20px' }}>
           Logout

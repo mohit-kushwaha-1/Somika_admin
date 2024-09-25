@@ -279,7 +279,7 @@ import {
 //   ModalCloseButton,
 //   Text,
 // } from "@chakra-ui/react";
-import { Select } from "@chakra-ui/react";
+import { background, Select } from "@chakra-ui/react";
 
 import { Text, Box, Flex } from "@chakra-ui/react";
 
@@ -290,6 +290,7 @@ import {
   OrderedList,
   UnorderedList,
 } from "@chakra-ui/react";
+import { h1 } from "framer-motion/client";
 
 // import {  message} from 'antd';
 
@@ -302,10 +303,155 @@ const Trips = () => {
   const [cabs, setCabs] = useState([]);
   const [record1, setRecord] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showCabs,setShowCabs] = useState(false);
+  const [isModalOpen1, setIsModalOpen1] = useState(false);
+  const [showCabs, setShowCabs] = useState(false);
+
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [status1, setStatus1] = useState(""); // Default status is "booked"
+  const [tripType, setTripType] = useState(""); // Default tripType is "interoffice"
+  const [employeeId, setEmployeeId] = useState("");
+  const [reportData, setReportData] = useState(null);
+  const [filteredData, setFilteredData] = useState(null);
+  const[filterN,setFilterN] = useState(false);
+  const[cost,setCost] = useState();
+  const[emp,setEmp] = useState();
+
+  console.log("data",startDate,"end",endDate,"status",status1,"triptype",tripType,"emp is",employeeId)
+
+  // const [selectedLocation, setSelectedLocation] = useState(null);
+  // const [selectedLocation, setSelectedLocation] = useState("");
+
+
+
+
+
+   const handleOk1 = () => {
+    setIsModalOpen1(false);
+  };
+  const handleCancel1 = () => {
+    setIsModalOpen1(false);
+  };
+
+
+  const handleCost = (record)=>{
+    setIsModalOpen1(true);
+    console.log("record data is",record);
+    setCost(record?.employeeCosts)
+  }
+
+
+  const fetchEmployees = async () => {
+    
+
+    try {
+      const response = await fetch('http://102.133.144.226:8000/api/v1/users/getAllUser');
+        const result = await response.json();
+
+        console.log("employ data is following ",result.data);
+        setEmp(result.data)
+    } catch (error) {
+       console.log(error)
+    }
+  };
+
+
+  const filterdataIs = async () => {
+    const id = "66c865228897f067258244f3";
+    // startDate=${"2024-09-01"}&endDate=${"2024-09-30"}&status=${"booked"}&tripType=${"interoffice"}&employeeId=${"66c865228897f067258244f3"}
+    try {
+      const response = await axios.get(
+        `http://102.133.144.226:8000/api/v1/report/tripReport/?startDate=${startDate}&endDate=${endDate}&status=${status1}&tripType=${tripType}&employeeId=${employeeId}`
+      );
+      
+      console.log("filter data is now ",response.data.report);
+      const data1 = response.data.report
+
+      const finaldata = data1.map((item) => {
+        const starttime = item?.startTime;
+
+        const date = new Date(starttime);
+
+        // Get hours and minutes
+        let hours = date.getUTCHours();
+        let minutes = date.getUTCMinutes();
+        const day = date.getUTCDate();
+        const month = date.toLocaleString("en-us", { month: "short" });
+
+        // Convert to 12-hour format and set AM/PM
+        const ampm = hours >= 12 ? "pm" : "am";
+        hours = hours % 12 || 12; // Convert to 12-hour format
+        minutes = minutes < 10 ? "0" + minutes : minutes; // Add leading zero if needed
+
+        // Format the time
+        const formattedTime = `${day}-${month.toLowerCase()},${hours}.${minutes}${ampm}`;
+
+        const formatDate = (dateString) => {
+          const date = new Date(dateString);
+          if (isNaN(date.getTime())) {
+            return "No Date Available";
+          }
+
+          return date
+            .toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            })
+            .replace(/\//g, "-");
+        };
+
+        let bookingDate = formatDate(item?.startTime);
+
+        // let currentLocation = item?.boardingPoint._id;
+        // let destinationLocation = item?.destinationPoint._id;
+        const returndata = {
+          name: item?.employeeCosts[0]?.employeeName         ,
+          Email: item?.employeeCosts[0]?.employeeEmail,
+          mobile: "NA",
+          BoradingPoint: item?.boardingPoint,
+          DestinationPonint: item?.destinationPoint ,
+          starttime: formattedTime,
+          status: item?.status,
+          
+         employeeCosts:item?.employeeCosts,
+         
+
+          // currentLocationID: currentLocation,
+          // destinationLocationID: destinationLocation,
+          // bookingDate1: bookingDate,
+          // requestId: item?._id,
+        };
+
+        return returndata;
+      });
+      console.log("filter data is now", response.data);
+      console.log("formated data is now ",finaldata);
+      setFilteredData(finaldata)
+      if(response){
+        setFilterN(true);
+      }
+    } catch (error) {}
+  };
+
+  const resetFilter = ()=>{
+    setStartDate("");
+    setEndDate("")
+    setStatus1("")
+    setTripType("")
+    setEmployeeId("")
+    setFilteredData(null);
+    setFilterN(false)
+    
+  }
+
+  // useEffect(() => {
+  //   filterdataIs();
+  // }, []);
 
   useEffect(() => {
     fetchTrip();
+    fetchEmployees();
   }, []);
 
   // useEffect(() => {
@@ -313,7 +459,7 @@ const Trips = () => {
   // }, []);
 
   const handleRow = async (record) => {
-    console.log("Clicked row data:", record);
+    // console.log("Clicked row data:", record);
     setRecord(record); // Update state with clicked row data
     setIsModalOpen(true); // Open modal if necessary
     setShowCabs(false);
@@ -334,7 +480,7 @@ const Trips = () => {
         };
 
         const requestedStartTime = getCurrentTime();
-        console.log("request time", getCurrentTime());
+        // console.log("request time", getCurrentTime());
         const data = await axios.post(
           "http://102.133.144.226:8000/api/v1/trip/getNearestCab",
           {
@@ -345,7 +491,7 @@ const Trips = () => {
           }
         );
 
-        console.log("data is is is", data);
+        // console.log("data is is is", data);
 
         const filter = data?.data?.suitableCabs?.filter((item) => {
           return item?.cab?.type === "NA";
@@ -356,14 +502,14 @@ const Trips = () => {
           console.log("etcabs is running");
         }
 
-        console.log("filter data is", filter);
+        // console.log("filter data is", filter);
       } catch (error) {
         console.log(error);
       }
     }, 100);
   };
 
-  console.log("vehicle id is following", record1);
+  // console.log("vehicle id is following", record1);
 
   const handleAlloted = () => {
     setIsModalOpen(true);
@@ -456,7 +602,7 @@ const Trips = () => {
           return returndata;
         });
 
-        console.log("final data is", finaldata);
+        // console.log("final data is", finaldata);
         setData(finaldata);
         // console.log("data 1 is",data1[1]._id);
         // console.log("data 1 is",data1);
@@ -550,7 +696,7 @@ const Trips = () => {
     try {
       const status = "rejected";
       const requestId = record1?.requestId;
-      console.log("vehicale id is", vehicleId);
+      // console.log("vehicale id is", vehicleId);
       const data = await axios.post(
         "http://102.133.144.226:8000/api/v1/trip/intercity/approve",
         {
@@ -560,7 +706,7 @@ const Trips = () => {
         }
       );
 
-      if (data.data.message === "Trip approved and booked successfully") {
+      if (data.data.message === "Trip request rejected") {
         message.success("trip Reject succesfully");
         // setIsModalOpen(false);
         fetchTrip();
@@ -580,8 +726,8 @@ const Trips = () => {
     },
 
     {
-      title: "Mobile",
-      dataIndex: "mobile",
+      title:  !filterN? "Mobile":"",
+      dataIndex:  !filterN? "mobile":"",
       key: "mobile",
     },
     {
@@ -607,9 +753,9 @@ const Trips = () => {
       key: "starttime",
     },
     {
-      title: "Status",
+      title:!filterN? "Status":"",
       key: "status",
-      render: (_, record) => {
+      render:  !filterN? (_, record) => {
         let color;
         let statusText;
 
@@ -624,15 +770,16 @@ const Trips = () => {
           color = "red";
           statusText = "Rejected";
         }
+        
 
         return <span style={{ color }}>{statusText}</span>;
-      },
+      }:"",
     },
 
     {
-      title: "Actions",
+      title: !filterN? "Actions":"",
       key: "actions",
-      render: (_, record) => (
+      render:!filterN? (_, record) => (
         <>
           <Button
             onClick={() => {
@@ -642,15 +789,184 @@ const Trips = () => {
             Update
           </Button>
         </>
-      ),
+      ):"",
+    },
+
+
+    {
+      title: filterN? "Action":"",
+      key: "action",
+      render:filterN? (_, record) => (
+        <>
+          <Button
+            onClick={() => {
+              
+              handleCost(record);
+            }}
+          >
+            View
+          </Button>
+        </>
+      ):"",
     },
   ];
 
   return (
     <div>
+
+
+      <Modal title="Basic Modal" open={isModalOpen1} onOk={handleOk1} onCancel={handleCancel1}>
+       
+         {
+          cost?(<p>{cost?.map((item)=>{
+               return(
+
+                
+                <>
+                <Box>
+                   <Flex>
+                         <pre>Cost {item?.cost}  Distance {item?.distanceTraveled} Name  {item?.employeeName}</pre>
+                         
+                         
+                   </Flex>
+                </Box>
+                  
+                </>
+               )
+          })}</p>):(<></>)
+         }
+      </Modal>
+
+      <form   >
+        <div style={{ display: "flex" }}>
+          <div>
+            <label>Start Date: </label>
+            <br />
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              
+              style={{
+                border: "1px solid black",
+                width: "180px",
+                marginRight: "10px",
+                borderRadius: "10px",
+                padding: "5px",
+              }}
+            />
+          </div>
+
+          <div>
+            <label>End Date: </label>
+            <br />
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              style={{
+                border: "1px solid black",
+                width: "180px",
+                marginRight: "10px",
+                borderRadius: "10px",
+                padding: "5px",
+              }}
+            />
+          </div>
+
+          <div>
+            <label>Status: </label>
+            <br />
+            <select
+              value={status1}
+              onChange={(e) => setStatus1(e.target.value)}
+              style={{
+                border: "1px solid black",
+                width: "180px",
+                marginRight: "10px",
+                borderRadius: "10px",
+                padding: "5px",
+              }}
+            >
+              <option value="">Select Status</option>
+              <option value="booked">Booked</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Trip Type: </label>
+            <br />
+            <select
+              value={tripType}
+              onChange={(e) => setTripType(e.target.value)}
+              style={{
+                border: "1px solid black",
+                width: "180px",
+                marginRight: "10px",
+                borderRadius: "10px",
+                padding: "5px",
+              }}
+            >
+
+              <option value="">Select TripType</option>
+              <option value="interoffice">Interoffice</option>
+            </select>
+          </div>
+
+          {/* emp */}
+
+          <div>
+            <label>Employee ID: </label>
+            <br />
+            {/* <input
+              type="text"
+              value={employeeId}
+              onChange={(e) => setEmployeeId(e.target.value)}
+              style={{
+                border: "1px solid black",
+                width: "180px",
+                marginRight: "10px",
+                borderRadius: "10px",
+                padding: "5px",
+              }}
+              
+            /> */}
+
+
+               <select
+              value={employeeId}
+              onChange={(e) => setEmployeeId(e.target.value)}
+              style={{
+                border: "1px solid black",
+                width: "250px",
+                marginRight: "10px",
+                borderRadius: "10px",
+                padding: "5px",
+              }}
+            >
+                <option value="">Select Employee</option>
+                {emp?.map((item) => (
+                <option key={item._id} value={item._id}>
+                  {item.name}
+                </option>
+              ))}
+
+            </select>
+          </div>
+        </div>
+
+        
+      </form>
+      
+
+      <div style={{marginBottom:"20px"}}>
+      <button onClick={filterdataIs} style={{width:"110px",background:"blue",marginTop:"10px",height:"30px",borderRadius:"10px",color:"white",marginRight:"20px"}}>Filter</button>
+      <button onClick={resetFilter} style={{width:"110px",background:"blue",marginTop:"10px",height:"30px",borderRadius:"10px",color:"white"}}>Reset Filter</button>
+      </div>
+     
       <Table
         columns={columns}
-        dataSource={data}
+        dataSource={filteredData || data}
         loading={loading}
         rowKey="key"
         // onRow={(record) => ({
@@ -726,50 +1042,50 @@ const Trips = () => {
           Reject
         </Button>
 
+        {showCabs ? (
+          <>
+            <Text mt={"20px"} fontWeight={"bold"}>
+              {" "}
+              Availbale Cabs
+            </Text>
 
-{
-  showCabs?(<>
+            <Flex mb={"15px"}>
+              <UnorderedList>
+                {cabs ? (
+                  cabs?.map((item) => {
+                    return (
+                      <>
+                        <ListItem>
+                          <Flex>
+                            <Box mr={"20px"}>
+                              <Text mr={"5px"}>Vehicle Number</Text>
+                              <Text color={"green"}>
+                                {item?.cab?.vehicle_number}
+                              </Text>
+                            </Box>
 
-<Text mt={"20px"} fontWeight={"bold"}>
-          {" "}
-          Availbale Cabs
-        </Text>
-
-        <Flex mb={"15px"}>
-          <UnorderedList>
-            {cabs ? (
-              cabs?.map((item) => {
-                return (
-                  <>
-                    <ListItem>
-                      <Flex>
-                        <Box mr={"20px"}>
-                          <Text mr={"5px"}>Vehicle Number</Text>
-                          <Text color={"green"}>
-                            {item?.cab?.vehicle_number}
-                          </Text>
-                        </Box>
-
-                        <Box>
-                          <Text mr={"5px"}>Capacity</Text>
-                          <Text mr={"5px"} color={"green"}>
-                            {item?.cab?.capacity}
-                          </Text>
-                        </Box>
-                      </Flex>
-                    </ListItem>
-                  </>
-                );
-              })
-            ) : (
-              <h1>Loading cabs</h1>
-            )}
-          </UnorderedList>
-        </Flex>
-
-  </>):(<><h1></h1></>)
-}
-        
+                            <Box>
+                              <Text mr={"5px"}>Capacity</Text>
+                              <Text mr={"5px"} color={"green"}>
+                                {item?.cab?.capacity}
+                              </Text>
+                            </Box>
+                          </Flex>
+                        </ListItem>
+                      </>
+                    );
+                  })
+                ) : (
+                  <h1>Loading cabs</h1>
+                )}
+              </UnorderedList>
+            </Flex>
+          </>
+        ) : (
+          <>
+            <h1></h1>
+          </>
+        )}
       </Modal>
 
       {/* <TableContainer>

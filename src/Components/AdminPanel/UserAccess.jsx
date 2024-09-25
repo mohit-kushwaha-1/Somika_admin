@@ -39,6 +39,7 @@ const UserAccess = () => {
   const [userData, setUserData] = useState([]);
   const [filteredOptions, setFilteredOptions] = useState([]);
   const [searchValue, setSearchValue] = useState("");
+  console.log("searchValue",searchValue);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -235,11 +236,13 @@ const UserAccess = () => {
     "Employee",
     "Driver",
     "Vehicle",
-    "Trip",
-    "Courier",
-    "Request",
+    "Intercity Request",
+    // "Courier",
+    "Cancel Request",
+    "Airport Booking",
+    "Setups",
     "Location",
-    "Exception Report",
+    // "Exception Report",
     "Master Card",
   ];
   useEffect(() => {
@@ -273,7 +276,7 @@ const UserAccess = () => {
             notFoundContent={loading ? "Loading..." : "No results found"} // Loading or empty message
           >
             {filteredOptions?.map((user) => (
-              <Option key={user._id} value={user.name}>
+              <Option key={user._id} value={user._id}>
                 {user.name}
               </Option>
             ))}

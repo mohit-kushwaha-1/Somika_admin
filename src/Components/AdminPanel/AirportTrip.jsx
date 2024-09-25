@@ -25,6 +25,7 @@ const AirportTrip = ({ setSelectedTab }) => {
   const [filteredOptions, setFilteredOptions] = useState([]);
   const [searchValue, setSearchValue] = useState("");
 
+  // console.log("setSelectedTab is",setSelectedTab)
 
   const handleCardClick = (tabKey) =>
     {
@@ -54,7 +55,26 @@ const AirportTrip = ({ setSelectedTab }) => {
   const getAlldropBooking = async()=>{
          try {
               const response = await axios.get("http://102.133.144.226:8000/api/v1/trip/getAllAirdropBookings")
-               console.log("reponse data is ",response.data);
+               
+
+
+               const data1 = response.data.airdropTrips;
+               const data2 = data1?.map((item)=>{
+                     
+                const retrundata = {
+                  status:item?.employeeTrips[0]?.status,
+                  seatbooks:item?.employeeTrips[0]?.seatbooks,
+                  totalDistance:item?.totalDistance,
+                  totalTime:item?.totalTime,
+                  type:item?.type,
+
+                }
+
+                return retrundata
+               })
+
+               console.log("reponse data is ",data2);
+               setData(data2)
          } catch (error) {
            console.log(error);
          }
@@ -86,27 +106,36 @@ const AirportTrip = ({ setSelectedTab }) => {
   console.log("search value is ",typeof searchValue);
 
   
-
+  // status:item?.employeeTrips[0]?.status,
+  // seatbooks:item?.employeeTrips[0]?.seatbooks,
+  // totalDistance:item?.totalDistance,
+  // totalTime:item?.totalTime,
+  // type:item?.type,
   const columns = [
     {
-      title: 'Name',
-      // dataIndex: 'name',
-      key: 'name',
+      title: 'Seat books',
+      dataIndex: 'seatbooks',
+      key: 'seatbooks',
     },
     {
-      title: 'Employee ID',
-      // dataIndex: 'employee_id',
-      key: 'employee_id',
+      title: 'Total Distance',
+      dataIndex: 'totalDistance',
+      key: 'totalDistance',
     },
     {
-      title: 'Mobile',
-      // dataIndex: 'mobile',
-      key: 'mobile',
+      title: 'Total Time',
+      dataIndex: 'totalTime',
+      key: 'totalTime',
     },
     {
-      title: 'Email',
-      // dataIndex: 'email',
-      key: 'email',
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+    },
+    {
+      title: 'Type',
+      dataIndex: 'type',
+      key: 'type',
     },
 
     
@@ -146,7 +175,7 @@ const AirportTrip = ({ setSelectedTab }) => {
        
         <Table
         columns={columns}
-        // dataSource={data}
+        dataSource={data}
         loading={loading}
         rowKey="key"
       />

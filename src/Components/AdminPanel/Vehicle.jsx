@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input, Select, Tag, message, Upload, Switch } from 'antd';
 import axios from 'axios';
 import { UploadOutlined } from '@ant-design/icons';
+import { BellOutlined,TranslationOutlined ,TruckOutlined ,CloseCircleOutlined } from "@ant-design/icons";
+
 import { render } from '@testing-library/react';
 
 const { Option } = Select;
@@ -21,23 +23,90 @@ const Vehicle = () => {
   const [countryCodes, setCountryCodes] = useState([]);
   const [baseLocations, setBaseLocations] = useState([]);
   const [allowedLocations, setAllowedLocations] = useState([]);
+  const [record1, setRecord] = useState();
 
   const[image1,setImage] = useState();
+
+
+  const [brand, setBrand] = useState("");
+  const [transmit, setTransmite] = useState("");
+  const [status1, setStatus1] = useState(""); // Default status is "booked"
+  const [bLocation, setBLocation] = useState(""); // Default tripType is "interoffice"
+  const[filterN,setFilterN] = useState(false);
+  // const [employeeId, setEmployeeId] = useState("");
+  const [filteredData, setFilteredData] = useState(null);
+
+  console.log("brand",brand,"transmit",transmit,"status1",status1,"bLocation",bLocation);
+
 
 
 
   // const [selectedLocation, setSelectedLocation] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState("");
   
+  const[cross,setCross] = useState(true);
+
+  // const[image1,setImage] = useState();
+
+
+
+  const handleCross = ()=>{
+    setCross(false);
+  }
+
+
+
+  const filterDataIs = async()=>{
+
+       
+           try {
+               const response =await axios.get(`http://102.133.144.226:8000/api/v1/report/vehicle-report/?status=${status1}&baseLocation=${bLocation}&brand=${brand}&transmissionType=${transmit}`)
+           
+                 console.log("filter data is now ",response.data);
+                 if(response){
+                  setFilteredData(response.data)
+                  setFilterN(true);
+                 }
+                 
+              } catch (error) {
+              console.log(error)
+           }
+  }
+
+
+  const resetFilter = ()=>{
+    setBrand("")
+    setTransmite("")
+    setStatus1("")
+    setBLocation("")
+    setFilteredData(null)
+    setFilterN(false);
+  }
+  // useEffect(()=>{
+  //   filterDataIs()
+  // },[])
+
+  
+  const handleRowClick = (record) => {
+    console.log("Clicked row data:", record);
+    setRecord(record);
+    setImage(record?.photo);
+    setCross(true);
+    setFilteredData(null)
+   
+    // Access the clicked row's data here
+    // You can now use 'record' to get the details of the clicked row
+  };
+  
 
   // Function to handle change event
   
 
   const uploadImage = async (file) => {
-    console.log(file);
+    // console.log(file);
     const formData = new FormData();
     formData.append("image", file.file);
-    console.log(file.file.name);
+    // console.log(file.file.name);
 
     try {
       const response = await axios.post(
@@ -51,7 +120,7 @@ const Vehicle = () => {
       );
       message.success("Image uploaded successfully!");
       setImage(response.data.filePath);
-      console.log("image is ",image1);
+      // console.log("image is ",image1);
       // console.log("image is ",response.data.filePath
       // );
       return response.data.url; // Assuming the API returns the image URL in the 'url' field
@@ -73,7 +142,7 @@ const Vehicle = () => {
     try {
       const response = await axios.get('http://102.133.144.226:8000/api/v1/vehicles');
       setData(response.data);
-      console.log("responce data  is now ",response.data);
+      // console.log("responce data  is now ",response.data);
 
       const data1 = response.data;
 
@@ -126,26 +195,43 @@ const Vehicle = () => {
       // If a value is selected, store it in state
       setSelectedLocation(value);
       // fetchDropdownData();
-      console.log("Selected location:", value);
+      // console.log("Selected location:", value);
   };
 
 
-  useEffect(()=>{
-    if(selectedLocation){
-      const allowlo = allowedLocations.filter((item)=>{
-         return item.value !==selectedLocation;
-      })
-      setSelectedLocation("");
-      setAllowedLocations(allowlo);
-      console.log("filter data is",allowlo);
+  // useEffect(()=>{
+  //   if(selectedLocation){
+  //     const allowlo = allowedLocations.filter((item)=>{
+  //        return item.value !==selectedLocation;
+  //     })
+  //     setSelectedLocation("");
+  //     setAllowedLocations(allowlo);
+  //     console.log("filter data is",allowlo);
       
+  // }
+  // else{
+  //   setAllowedLocations(allowedLocations);
+  //   setSelectedLocation("");
+  //   console.log("wehfrwhejrk");
+  // }
+  // },[selectedLocation])
+
+
+  const filterdataIs = async()=>{
+      try {
+          const response = await axios.get(`http://102.133.144.226:8000/api/v1/report/tripReport/?startDate=${'2024-09-01'}&endDate=${'2024-09-30'}&status=${'booked'}&tripType=interoffice&employeeId=66c865228897f067258244f3`);
+
+          console.log("filter data is",response.data);
+      } catch (error) {
+        
+      }
   }
-  else{
-    setAllowedLocations(allowedLocations);
-    setSelectedLocation("");
-    console.log("wehfrwhejrk");
-  }
-  },[selectedLocation])
+
+  // useEffect(()=>{
+  //   filterdataIs();
+  // },[])
+
+
   const fetchDropdownData = async () => {
     try {
 
@@ -180,7 +266,7 @@ const Vehicle = () => {
         label: location.label,
       }));
 
-
+      setAllowedLocations(allowedLocationsData);
       console.log("selected check ",selectedLocation);
 
 
@@ -206,6 +292,14 @@ const Vehicle = () => {
       return;
     }
     setEditingVehicle(record);
+
+    const aray = record?.allowed_locations?.location?.map((item)=>{
+           return  item?.companyId?._id
+    })
+
+    console.log("arr is ",aray);
+
+    
       
     const dataToSend = {
       allowed_locations: {
@@ -331,18 +425,41 @@ const Vehicle = () => {
   //     setSelectedValues(value);
   //   }
   // };
+
+
+  // useEffect(() => {
+  //   if (isEditing && editingVehicle) {
+  //     form.setFieldsValue({
+  //       vehicle_id: editingVehicle.vehicle_id,
+  //       vehicle_number: editingVehicle.vehicle_number,
+  //       capacity: editingVehicle.capacity,
+  //       TrasmissionType: editingVehicle?.TrasmissionType?._id,
+  //       brand_make: editingVehicle.brand_make?._id,
+  //       mobile: editingVehicle.mobile,
+  //       country_code: editingVehicle.country_code,
+  //       base_location: editingVehicle?.base_location?.companyId?._id,
+  //       allowed_locations: editingVehicle?.allowed_locations?.location?.map((item)=>{
+  //                  return item?.companyId?._id
+  //       }), // Prepopulate locations
+  //       status: editingVehicle.status,
+  //     });
+  //   }
+
+  //   console.log(",editingVehicleeditingVehicle",editingVehicle);
+  // }, [isEditing, editingVehicle, form]);
   
   
 
   const columns = [
     {
-      title: 'Chassis ID/Vehicle ID',
-      dataIndex: 'vehicle_id',
+      title:  !filterN ?'Chassis ID/Vehicle ID':'',
+      dataIndex: !filterN ? 'vehicle_id' : '',
       key: 'vehicle_id',
     },
     {
       title: 'Vehicle Number',
-      dataIndex: 'vehicle_number',
+      dataIndex: filterN ? 'vehicleNumber' : 'vehicle_number',
+      // dataIndex: 'vehicle_number',
       key: 'vehicle_number',
     },
     {
@@ -352,12 +469,16 @@ const Vehicle = () => {
     },
     {
       title: 'Transmission Type',
-      dataIndex: ['TrasmissionType', 'type'],
+
+      // transmissionType
+      dataIndex: filterN ? 'transmissionType' : ['TrasmissionType', 'type'],
+      // dataIndex: ['TrasmissionType', 'type'],
       key: 'TrasmissionType.type',
     },
     {
       title: 'Brand Make',
-      dataIndex: ['brand_make', 'name'],
+      dataIndex: filterN ? 'brand' : ['brand_make', 'name'],
+      // dataIndex: ['brand_make', 'name'],
       key: 'brand_make.name',
     },
     // {
@@ -373,7 +494,8 @@ const Vehicle = () => {
 
     {
       title: 'Base Location',
-      dataIndex: ['base_location','companyId', 'name'],
+      // dataIndex: ['base_location','companyId', 'name'],
+      dataIndex: filterN ? ['baseLocation','companyName'] :  ['base_location','companyId', 'name'],
       key: 'base_location',
       // render:(record)=>{
       //     if(record?.base_location){
@@ -424,26 +546,34 @@ const Vehicle = () => {
       {
         title: 'Status',
         key: 'status',
-        render: (_, record) => (
+        render:!filterN? (_, record) => (
           <Switch
             checked={record.status === "Active"}
             onChange={() => handleStatusToggle(record)}
             checkedChildren="Active"
             unCheckedChildren="Inactive"
           />
+        ):(_, record) => (
+            <>
+            <h1>{record?.status}</h1>
+
+            </>
         ),
       },
-    {
-      title: 'Actions',
+    
+    
+      {
+        
+      title: !filterN ?'Actions':"",
       key: 'actions',
-      render: (_, record) => (
+      render:!filterN ? (_, record) => (
         <>
           <Button  onClick={() => handleEdit(record)}>
             Update
           </Button>
           
         </>
-      ),
+      ):"",
     },
   ];
 
@@ -463,11 +593,136 @@ const Vehicle = () => {
       <Button type="primary" onClick={handleAdd} style={{ marginBottom: 16 }}>
         Add Vehicle
       </Button>
+
+        
+      <form   >
+        <div style={{ display: "flex" }}>
+          
+
+          <div>
+            <label>Brand Make </label>
+            {/* brand, setBrand */}
+            <br />
+            <select
+              value={brand}
+              onChange={(e) => setBrand(e.target.value)}
+              style={{
+                border: "1px solid black",
+                width: "250px",
+                marginRight: "10px",
+                borderRadius: "10px",
+                padding: "5px",
+              }}
+            >
+                <option value="">Select BrandMakes</option>
+                {brandMakes.map((brand) => (
+                <option key={brand._id} value={brand._id}>
+                  {brand.name}
+                </option>
+              ))}
+
+            </select>
+          </div>
+
+
+
+
+          <div>
+            <label>Transmission Types </label>
+            {/* transmit, setTransmite */}
+            <br />
+            <select
+              value={transmit}
+              onChange={(e) => setTransmite(e.target.value)}
+              style={{
+                border: "1px solid black",
+                width: "250px",
+                marginRight: "10px",
+                borderRadius: "10px",
+                padding: "5px",
+              }}
+            >
+
+              <option value="">Select TransmissionTypes</option>
+              {transmissionTypes.map((type) => (
+                <option key={type._id} value={type._id}>
+                  {type.type}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label>Status: </label>
+            <br />
+            <select
+              value={status1}
+              onChange={(e) => setStatus1(e.target.value)}
+              style={{
+                border: "1px solid black",
+                width: "250px",
+                marginRight: "10px",
+                borderRadius: "10px",
+                padding: "5px",
+              }}
+            > 
+              <option value="">Select Status</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+              
+            </select>
+          </div>
+
+          <div>
+            <label>Base Location: </label>
+            <br />
+            {/* bLocation, setBLocation */}
+            <select
+              value={bLocation}
+              onChange={(e) => setBLocation(e.target.value)}
+              style={{
+                border: "1px solid black",
+                width: "250px",
+                marginRight: "10px",
+                borderRadius: "10px",
+                padding: "5px",
+              }}
+            >
+
+             <option value="">Select base Location</option>
+             {baseLocations.map(loc => (
+               
+                <option key={loc.value} value={loc.value}>
+                   {loc.label}
+                </option>
+              ))}
+
+            </select>
+          </div>
+
+          
+        </div>
+
+        
+      </form>
+
+      
+      <div style={{marginBottom:"20px"}}>
+      <button onClick={filterDataIs}  style={{width:"110px",background:"blue",marginTop:"10px",height:"30px",borderRadius:"10px",color:"white",marginRight:"20px"}}>Filter</button>
+      <button onClick={resetFilter} style={{width:"110px",background:"blue",marginTop:"10px",height:"30px",borderRadius:"10px",color:"white"}}>Reset Filter</button>
+      </div>
+
       <Table
         columns={columns}
-        dataSource={data}
+        dataSource={filteredData || data}
         loading={loading}
-        rowKey="_id"
+        // rowKey="_id"
+        rowKey={(record) => record._id}
+        onRow={(record) => ({
+          onClick: () => {
+            handleRowClick(record); // Trigger the click handler
+          },
+        })}
         scroll={{ x: 'max-content' }}
       />
       <Modal
@@ -565,7 +820,7 @@ const Vehicle = () => {
                 </Option>
               ))}
             </Select>
-          </Form.Item>
+          </Form.Item >
 
           <Form.Item
             label="Allowed Locations"
@@ -592,6 +847,59 @@ const Vehicle = () => {
             </Select>
           </Form.Item>
 
+          {
+            isEditing?(<> 
+            
+
+            {
+              cross?(<>
+                 <CloseCircleOutlined style={{width:"30px"}} onClick={handleCross} />
+             <img src={`${record1?.photo}`} alt="" style={{width:"100px",height:"100px"}} />
+             
+              </>):(<>
+                  
+                <Form.Item
+              label="Photo"
+              name="photo"
+              onChange={(e) => setPhoto(e.target.files[0])}
+              
+              rules={[
+                { required: true, message: "Please upload the driver's photo!" },
+              ]}
+            >
+              <Upload
+                listType="picture"
+                beforeUpload={() => false}
+                onChange={uploadImage}
+  
+                
+                showUploadList={false}
+                customRequest={({ file, onSuccess }) => {
+                  setTimeout(() => {
+                    onSuccess("ok");
+                  }, 0);
+                }}
+              >
+                <Button icon={<UploadOutlined />}>Upload Photo</Button>
+              </Upload>
+            </Form.Item>
+            {photo && (
+              <div>
+                <img
+                  src={URL.createObjectURL(photo)}
+                  alt="Uploaded"
+                  height="100px"
+                  width="100px"
+                />
+              </div>
+            )}
+              </>)
+            }
+            
+            
+            </>):(<>
+            
+            
           <Form.Item
             label="Photo"
             name="photo"
@@ -604,6 +912,8 @@ const Vehicle = () => {
               listType="picture"
               beforeUpload={() => false}
               onChange={uploadImage}
+
+              
               showUploadList={false}
               customRequest={({ file, onSuccess }) => {
                 setTimeout(() => {
@@ -614,17 +924,22 @@ const Vehicle = () => {
               <Button icon={<UploadOutlined />}>Upload Photo</Button>
             </Upload>
           </Form.Item>
+            {photo && (
+              <div>
+                <img
+                  src={URL.createObjectURL(photo)}
+                  alt="Uploaded"
+                  height="100px"
+                  width="100px"
+                />
+              </div>
+            )}
+            
+            
+            
+            </>)
+          }
 
-          {photo && (
-            <div>
-              <img
-                src={URL.createObjectURL(photo)}
-                alt="Uploaded"
-                height="100px"
-                width="100px"
-              />
-            </div>
-          )}
           {/* <Form.Item
             label="Status"
             name="status"

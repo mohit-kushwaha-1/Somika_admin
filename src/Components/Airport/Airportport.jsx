@@ -319,6 +319,7 @@
 
 
 import React, { useState,useEffect } from 'react';
+import {  message, } from 'antd';
 // import { Card, Button, Spin, Col, Row,Select} from 'antd';
 import { GoogleMap, Marker ,Autocomplete} from "@react-google-maps/api";
 import { LoadScript } from "@react-google-maps/api";
@@ -373,6 +374,18 @@ const Airportport = () => {
   const [format1, setformat1] = useState();
   const [foramt2, setForamt2] = useState();
   const [availabeCabs, setAvailableCabs] = useState();
+  
+  const [baseLocations, setBaseLocations] = useState([]);
+  const [allowedLocations, setAllowedLocations] = useState([]);
+  const[destinationData,setDistinationData] = useState()
+  const[bording,setBoarding] = useState();
+  const[destination1,setDestination] = useState();
+  console.log("bording is",bording);
+  console.log("destination1",destination1);
+  const[showBook,setShowBook] = useState(false);
+
+  const[date,setDate] = useState();
+  const [time,setTime] = useState();
 
 
 
@@ -414,17 +427,66 @@ const Airportport = () => {
   };
 
 
+  useEffect(()=>{
+    fetchDropdownData()
+  },[])
+
+  const fetchDropdownData = async () => {
+    try {
+
+      
+      console.log("inside fetch",bording)
+      const baseLocationsResponse = await fetch('http://102.133.144.226:8000/api/v1/companies/getAllLocation');
+      const baseLocationsResult = await baseLocationsResponse.json();
+      const baseLocationsData = baseLocationsResult.Locations.map(location => ({
+        value: location.value,
+        label: location.label,
+      }));
+      setBaseLocations(baseLocationsData);
+      console.log("baselocation is",baseLocationsData);
+
+
+
+      const destinatinData1 = baseLocationsData.filter((item)=>{
+             return item.value != bording;
+      })
+
+      // console.log("destinatinData1",destinatinData1);
+      setDistinationData(destinatinData1)
+   
+
+
+      // const allowedLocationsResponse = await fetch('http://102.133.144.226:8000/api/v1/companies/getAllLocation');
+      // const allowedLocationsResult = await allowedLocationsResponse.json();
+      // const allowedLocationsData = allowedLocationsResult.Locations.map(location => ({
+      //   value: location.value,
+      //   label: location.label,
+      // }));
+
+      // setAllowedLocations(allowedLocationsData);
+     
+    } catch (error) {
+      console.error('Error fetching dropdown data:', error);
+      // message.error('Error fetching dropdown data.');
+    }
+  };
+
+
+
 
   const findCabs = async () => {
     try {
 
-      const a = Object.values(clickedPosition1);
-      const boardingCoordinates = a.reverse();
-      const b = Object.values(clickedPosition2);
-      const destinationCoordinates = b.reverse();
+      // const a = Object.values(clickedPosition1);
+      // const boardingCoordinates = a.reverse();
+      // const b = Object.values(clickedPosition2);
+      // const destinationCoordinates = b.reverse();
 
-      function formatDateTime(isoDate) {
-        const date = new Date(isoDate);
+      const currentLocation = bording;
+      const destinationLocation = destination1;
+
+      
+        const date = new Date(startTime1);
 
         const day = String(date.getDate()).padStart(2, "0");
         const month = String(date.getMonth() + 1).padStart(2, "0"); 
@@ -439,24 +501,32 @@ const Airportport = () => {
 
         hours = hours % 12 || 12; 
         hours = String(hours).padStart(2, "0");
+       
+        const a = `${day}-${month}-${year}`
+        setDate(a)
+        const b = `${hours}:${minutes} ${ampm}`
+        setTime(b);
 
-        return `${day}-${month}-${year} ${hours}:${minutes}${ampm}`;
-      }
-
-      const startTime = formatDateTime(startTime1);
+        
       
 
+      // const startTime = formatDateTime(startTime1);
+      console.log("data",date,"time",time);
+      const bookingDate = `${day}-${month}-${year}`  // DD-MM-YYYY format
+      const requestedStartTime= `${hours}:${minutes} ${ampm}`;
+
       const response = await axios.post(
-        "http://102.133.144.226:8000/api/v1/trip/findcabs",
+        "http://102.133.144.226:8000/api/v1/trip/getNearestCab",
         {
-          boardingCoordinates,
-          destinationCoordinates,
-          startTime,
+          currentLocation,
+          destinationLocation,
+          bookingDate,
+          requestedStartTime,
         }
       );
 
-      console.log("response data is following", response.data.availableCabs);
-      setAvailableCabs(response.data.availableCabs);
+      console.log("response data is following", response.data.suitableCabs);
+      setAvailableCabs(response.data.suitableCabs);
     } catch (error) {
       console.log(error)
     }
@@ -466,15 +536,19 @@ const Airportport = () => {
 
   const postAirdrop = async () => {
     try {
-      const a = Object.values(clickedPosition1);
-      const boardingCoordinates = a.reverse();
-      const b = Object.values(clickedPosition2);
-      const destinationCoordinates = b.reverse();
+      // const a = Object.values(clickedPosition1);
+      // const boardingCoordinates = a.reverse();
+
+      const boardingCoordinates = bording;
+      console.log("inside Post",bording)
+      // const b = Object.values(clickedPosition2);
+      // const destinationCoordinates = b.reverse();
+      const destinationCoordinates = destination1;
       const startTime = format1;
       // const endTime = foramt2;
-      const vehicleId = "66d69f8c6958b0d198beeaa5";
+      const vehicleId = selectedCardId;
 
-      const employeeId = "66c86250b01896ae48684d11";
+      const employeeId = searchValue;
 
       const response = await axios.post(
         "http://102.133.144.226:8000/api/v1/trip/airdrop",
@@ -487,8 +561,13 @@ const Airportport = () => {
           vehicleId,
         }
       );
-
-      console.log("boardingCoordinates", response.data);
+      //  "message": "Airdrop trip booked successfully",
+      console.log(response.data);
+      if(response.data.message==='Airdrop trip booked successfully'){
+        message.success("trip booked succesfully")
+        setShowBook(false);
+      }
+      // console.log("boardingCoordinates", response.data);
     } catch (error) {
       console.log(error);
     }
@@ -616,6 +695,7 @@ const Airportport = () => {
   const handleCardClick = (id) => {
     setSelectedCardId(id); // Set the selected card ID
     console.log('Selected Card ID:', id); // Log the selected card ID for debugging
+    setShowBook(true)
   
     // You can also add any additional logic here, 
     // such as fetching more details about the selected card or updating other state variables.
@@ -623,6 +703,8 @@ const Airportport = () => {
 
 
 
+
+  console.log("searchValue is",searchValue);
  
 
   return (
@@ -637,13 +719,14 @@ const Airportport = () => {
           
            showSearch
            value={searchValue}
-           placeholder="Type to search users"
-           style={{ width: 300,border:"1px solid black",borderRadius:"8px" }}
+           placeholder="Select Boarding Point" 
+           style={{ width: 200,border:"1px solid black",borderRadius:"8px" }}
            onSearch={handleSearch1} // Filter options as the user types
-           onChange={setSearchValue} // Update the selected value
+           onChange={(value)=>{setSearchValue(value)}} // Update the selected value
            filterOption={false} // Disable default filtering to use custom filtering
            notFoundContent={loading ? "Loading..." : "No results found"} // Loading or empty message
          >
+          <Option key={"khg"} value="">Search</Option>
            {filteredOptions?.map((user) => (
              <Option key={user._id} value={user._id}>
                {user.name}
@@ -652,8 +735,7 @@ const Airportport = () => {
          </Select>
     </Box>
 
-    <Box  ml={"30px"} >
-          
+    <Box  ml={"30px"} >   
     <FormLabel>Select Date</FormLabel>
         <Input
           type="datetime-local"
@@ -667,9 +749,45 @@ const Airportport = () => {
         />
 
     </Box>
+        
+
+        <Box  ml={"30px"} >
+        <FormLabel>Select Boarding Point</FormLabel>
+        <Select 
+        placeholder="Select Boarding Point"  
+        value={bording}
+        onChange={(value)=>{setBoarding(value)}}
+
+        style={{ width: 200,border:"1px solid black",borderRadius:"8px" }}
+        >
+              {baseLocations.map(loc => (
+                <Option key={loc.value} value={loc.value}>
+                  {loc.label}
+                </Option>
+              ))}
+            </Select>
+        </Box>
 
 
-       <Box ml={"30px"}>
+
+        <Box  ml={"30px"} >
+        <FormLabel>Select Destination Point</FormLabel>
+        <Select 
+        placeholder="Select destination Point"  
+        value={destination1}
+        onChange={(value)=>{setDestination(value)}}
+        style={{ width: 200,border:"1px solid black",borderRadius:"8px" }}
+        >
+              {baseLocations.map(loc => (
+                <Option key={loc.value} value={loc.value}>
+                  {loc.label}
+                </Option>
+              ))}
+            </Select>
+        </Box>
+
+
+       {/* <Box ml={"30px"}>
        <FormLabel>Select Boarding Point</FormLabel>
           <Button style={{ width: 150,border:"1px solid black" }} onClick={() => handleModalOpen("start")}>
             Map View
@@ -681,7 +799,7 @@ const Airportport = () => {
           <Button style={{ width: 150,border:"1px solid black" }} onClick={() => handleModalOpen("destination")}>
             Map View
           </Button>
-        </Box>
+        </Box> */}
     
 
     </Flex>     
@@ -692,24 +810,32 @@ const Airportport = () => {
          Get Cabs
       </Button>
 
-      <Button type="primary" onClick={postAirdrop} style={{ marginBottom: '16px' }}>
+
+   {
+    showBook?(<>
+          <Button type="primary" onClick={postAirdrop} style={{ marginBottom: '16px' }}>
          Book Now
       </Button>
+    </>):(<><h1></h1></>)
+   }
+
 
       {loading ? (
         <Spin />
       ) : (
         <Row gutter={16}>
-          {data?.map(item => (
+          {availabeCabs?.map(item => (
             <Col span={8} key={item._id}  >
               <Card
-                title={item.name} // Title of the card
+                title={item?.currentLocation[0]?.label  } // Title of the card
                 style={{ marginBottom: '16px', cursor: 'pointer' ,border:"1px solid black"}} // Add cursor pointer for click effect
-                onClick={() => handleCardClick(item._id)} // Handle card click
+                onClick={() => handleCardClick(item?.cab?.vehicle_id)} // Handle card click
               >
                 <Meta
-                  title={item.name} // Name to be displayed on the card
-                  description={item.name} // Description to be displayed on the card
+                // capacity
+
+                  title={item?.cab?.vehicle_number} // Name to be displayed on the card
+                  description={item?.cab?.capacity} // Description to be displayed on the card
                 />
               </Card>
             </Col>
@@ -718,7 +844,7 @@ const Airportport = () => {
       )}
       {selectedCardId && (
         <div style={{ marginTop: '16px' }}>
-          <h2>Selected Card ID: {selectedCardId}</h2>
+          <h2>Selected Card ID: {selectedCardId} </h2>
         </div>
       )}
     </div>
@@ -726,6 +852,8 @@ const Airportport = () => {
 
 
            {/* Modal 1 for Start Point */}
+
+
       <Modal
         visible={isModal1Visible}
         onOk={() => handleModalClose("start")}
@@ -733,7 +861,7 @@ const Airportport = () => {
         footer={null}
         style={{ top: 20 }}
       >
-        {/* <LoadScript googleMapsApiKey={googleMapsApiKey} libraries={libraries}> */}
+        <LoadScript googleMapsApiKey={googleMapsApiKey} libraries={libraries}>
           <Autocomplete onLoad={handleAutocompleteLoad1} onPlaceChanged={handlePlaceChanged1}>
             <Input id="search-box1" type="text" placeholder="Search for a place" />
           </Autocomplete>
@@ -752,7 +880,7 @@ const Airportport = () => {
               <p>Address: {address1}</p>
             </div>
           )}
-        {/* </LoadScript> */}
+        </LoadScript>
       </Modal>
 
       {/* Modal 2 for Destination Point */}
@@ -763,7 +891,7 @@ const Airportport = () => {
         footer={null}
         style={{ top: 20 }}
       >
-        {/* <LoadScript googleMapsApiKey={googleMapsApiKey} libraries={libraries}> */}
+        <LoadScript googleMapsApiKey={googleMapsApiKey} libraries={libraries}>
           <Autocomplete onLoad={handleAutocompleteLoad2} onPlaceChanged={handlePlaceChanged2}>
             <Input id="search-box2" type="text" placeholder="Search for a place" />
           </Autocomplete>
@@ -782,10 +910,10 @@ const Airportport = () => {
               <p>Address: {address2}</p>
             </div>
           )}
-        {/* </LoadScript> */}
+        </LoadScript>
       </Modal>
 
-      <LoadScript googleMapsApiKey={googleMapsApiKey} libraries={libraries}></LoadScript>
+      {/* <LoadScript googleMapsApiKey={googleMapsApiKey} libraries={libraries}></LoadScript> */}
 
     </>
   );

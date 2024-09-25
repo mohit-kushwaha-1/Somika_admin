@@ -46,7 +46,9 @@ import CountryCode from "../Masters/CountryCode";
 import { icons } from "antd/es/image/PreviewGroup";
 import AirportTrip from "./AirportTrip";
 import Airportport from "../Airport/Airportport";
-import Notify from "../../Notify";
+// import Notify from "../../Notify";
+import Notify from "./Notify";
+import AllTrip from "./AllTrip";
 
 const { Header, Sider, Content } = Layout;
 
@@ -73,13 +75,16 @@ const AdminPanel = () => {
   const renderContent = () => {
     switch (selectedTab) {
       case "dashboard":
-        return <ProfileDetail />;
+        return <ProfileDetail setSelectedTab={setSelectedTab}/>;
       case "user-access":
         return <UserAccess />;
       case "driver":
         return <Drivers />;
         case "notification":
         return <Notify setSelectedTab={setSelectedTab}/>;
+
+        case "alltrip":
+        return <AllTrip/>;
 
         case "airport":
         return <AirportTrip  setSelectedTab={setSelectedTab} />;
@@ -91,8 +96,8 @@ const AdminPanel = () => {
         return <Trips />;
       // case "couriers":
       //   return <Couriers />;
-      // case "requests":
-      //   return <Requests />;
+      case "requests":
+        return <Requests />;
       case "base-location-reporting":
         return <BaseLocationReporting />;
       // case "exception-report":
@@ -156,8 +161,9 @@ const AdminPanel = () => {
     driver: { key: "driver", icon: <TruckOutlined />, label: "Driver" },
     vehicle: { key: "vehicle", icon: <CarOutlined />, label: "Vehicle" },
     trip: { key: "trips", icon: <EnvironmentOutlined />, label: "Intercity Request" },
+    alltrip: { key: "alltrip", icon: <EnvironmentOutlined />, label: "All Trip" },
     // courier: { key: "couriers", icon: <CarryOutOutlined />, label: "Courier" },
-    // request: { key: "requests", icon: <FormOutlined />, label: "Request" },
+    request: { key: "requests", icon: <FormOutlined />, label: "Cancel Request" },
     airport: { key: "airport", icon: <TranslationOutlined />, label: "Airport Booking" },
     "base location": {
       key: "base-location-reporting",
@@ -212,7 +218,9 @@ const AdminPanel = () => {
       </Dropdown> */}
 
         
-           <Notify/>
+           <Notify  setSelectedTab={setSelectedTab}/>
+
+           
 
          
 

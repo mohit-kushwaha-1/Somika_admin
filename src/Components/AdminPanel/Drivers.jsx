@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Map from "../../Map";
+import { BellOutlined,TranslationOutlined ,TruckOutlined ,CloseCircleOutlined } from "@ant-design/icons";
+
 
 import { Box, Flex, Text } from "@chakra-ui/react";
 import {
@@ -36,18 +38,26 @@ const Drivers = () => {
   const [vehicleData, setVehicleData] = useState(null);
   const [record1, setRecord] = useState();
   const[changeVehicledata,setChangeVehicleData] = useState();
+  const [unallotedV,setUnallotedV] = useState();
 
   const[changeImage,setChangeImage] = useState(false);
   const[ImageTobeuploaded,setImageTobeuploaded] = useState();
+  const[image1,setImage] = useState();
+  const[cross,setCross] = useState(true);
 
   const showModal2 = () => {
     setIsModal2Visible(true);
+    setCross(true);
   };
 
 
+  const handleCross = ()=>{
+    setCross(false);
+  }
 
   const handleImageChange = ()=>{
     setChangeImage(true);
+    console.log(changeImage)
   }
 
 
@@ -55,6 +65,8 @@ const Drivers = () => {
   const handleRowClick = (record) => {
     console.log("Clicked row data:", record);
     setRecord(record);
+    setImage(record?.photo);
+    setCross(true);
    
     // Access the clicked row's data here
     // You can now use 'record' to get the details of the clicked row
@@ -75,6 +87,11 @@ const Drivers = () => {
                   if(response.data){
                     message.success("Vehicle change successfully")
                     setIsModal2Visible(false);
+                    setSelectedVehicle("");
+                    fetchData();
+                    // setUnallotedV("")
+                    
+                    
                   }
               }
               else {
@@ -87,6 +104,9 @@ const Drivers = () => {
                 if(response.data){
                   message.success("Vehicle alloted successfully")
                   setIsModal2Visible(false);
+                  // setUnallotedV("");
+                  
+                  fetchData();
                 }
               }
               
@@ -103,8 +123,17 @@ const Drivers = () => {
    
   };
 
-  const handleAlloted = () => {
+  const handleAlloted = async() => {
     setIsModal2Visible(true);
+
+    try {
+      const response = await axios.get("http://102.133.144.226:8000/api/v1/vehicles/getUnallottedVehicles")
+      console.log("unalloted is",response.data.unallottedVehicles);
+      setUnallotedV(response.data.unallottedVehicles)
+      
+    } catch (error) {
+       console.log(error)
+    }
   };
 
   useEffect(() => {
@@ -198,7 +227,7 @@ const Drivers = () => {
     setPhoto("");
   };
 
-  const[image1,setImage] = useState();
+  
 
   const uploadImage = async (file) => {
     console.log(file);
@@ -307,12 +336,16 @@ const Drivers = () => {
           status:  'Active',
         };
 
-        if(changeImage){
+        console.log("changeVehicledata is ",changeImage);
+
+        if(changeImage === true){
           setImageTobeuploaded(driverData1)
+          console.log("ImageTobeuploaded",ImageTobeuploaded);
         }
 
-        if(!changeImage){
+        if(changeImage === false){
           setImageTobeuploaded(driverData2)
+          console.log("ImageTobeuploaded",ImageTobeuploaded);
         }
 
        const response =  await axios.put(
@@ -324,6 +357,7 @@ const Drivers = () => {
         if(response.data){
           setImageTobeuploaded("");
           console.log("image should be change to ",response.data)
+          console.log("changeVehicledata is ",changeImage);
           setChangeImage(false);
           
         }
@@ -413,8 +447,11 @@ const Drivers = () => {
         `http://102.133.144.226:8000/api/v1/vehicles/${value}`
       );
       setVehicleData(response.data);
+      if(response){
+        fetchVehicles();
+      }
       // console.log("selected vehicles is follow",response.data);
-      message.success("Vehicle Changed Successfully.");
+      // message.success("Vehicle Change Successfully.");
     } catch (error) {
       message.error("Error fetching vehicle data.");
       console.error("Error fetching vehicle data:", error);
@@ -611,12 +648,18 @@ const Drivers = () => {
           {
             isEditing?(<> 
             
-             <h1>welcome</h1>
-             <img src={`http://102.133.144.226:8000/${record1?.photo}`} alt="" style={{width:"100px",height:"100px"}} onClick={handleImageChange}/>
-            <Form.Item
+
+            {
+              cross?(<>
+                 <CloseCircleOutlined style={{width:"30px"}} onClick={handleCross} />
+             <img src={`${record1?.photo}`} alt="" style={{width:"100px",height:"100px"}} onClick={handleImageChange}/>
+             
+              </>):(<>
+                  
+                <Form.Item
               label="Photo"
               name="photo"
-              // onChange={(e) => setPhoto(e.target.files[0])}
+              onChange={(e) => setPhoto(e.target.files[0])}
               
               rules={[
                 { required: true, message: "Please upload the driver's photo!" },
@@ -637,7 +680,22 @@ const Drivers = () => {
               >
                 <Button icon={<UploadOutlined />}>Upload Photo</Button>
               </Upload>
-            </Form.Item></>):(<>
+            </Form.Item>
+            {photo && (
+              <div>
+                <img
+                  src={URL.createObjectURL(photo)}
+                  alt="Uploaded"
+                  height="100px"
+                  width="100px"
+                />
+              </div>
+            )}
+              </>)
+            }
+            
+            
+            </>):(<>
             
             
           <Form.Item
@@ -839,7 +897,7 @@ const Drivers = () => {
           value={selectedVehicle}
           
         >
-          {vehicles.map((option) => (
+          {unallotedV?.map((option) => (
             <Select.Option key={option._id} value={option._id}>
               {option.vehicle_number}
             </Select.Option>

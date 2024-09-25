@@ -728,6 +728,8 @@ import MyMapApp from '../../MyMapApp';
 
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, Select, message,Upload, Switch } from 'antd';
+import { BellOutlined,TranslationOutlined ,TruckOutlined ,CloseCircleOutlined } from "@ant-design/icons";
+
 import { UploadOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
@@ -745,8 +747,27 @@ const Employees = () => {
   const [companies, setCompanies] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [countryCodes, setCountryCodes] = useState([]);
+  const [record1, setRecord] = useState();
+  const[cross,setCross] = useState(true);
 
     const[image1,setImage] = useState();
+
+
+
+    const handleCross = ()=>{
+      setCross(false);
+    }
+  
+    
+    const handleRowClick = (record) => {
+      console.log("Clicked row data:", record);
+      setRecord(record);
+      setImage(record?.photo);
+      setCross(true);
+     
+      // Access the clicked row's data here
+      // You can now use 'record' to get the details of the clicked row
+    };
 
   const uploadImage = async (file) => {
     console.log(file);
@@ -1038,7 +1059,7 @@ const Employees = () => {
 
   return (
     <div>
-       <A/>
+       {/* <A/> */}
       {/* <Notify/> */}
 
       {/* <MyMapApp/> */}
@@ -1049,7 +1070,13 @@ const Employees = () => {
         columns={columns}
         dataSource={data}
         loading={loading}
-        rowKey="key"
+        // rowKey="key"
+        rowKey={(record) => record._id}
+        onRow={(record) => ({
+          onClick: () => {
+            handleRowClick(record); // Trigger the click handler
+          },
+        })}
       />
 
       <Modal
@@ -1144,6 +1171,59 @@ const Employees = () => {
           </Form.Item>
           </div>
 
+          {
+            editingEmployee?(<> 
+            
+
+            {
+              cross?(<>
+                 <CloseCircleOutlined style={{width:"30px"}} onClick={handleCross} />
+             <img src={`${record1?.photo}`} alt="" style={{width:"100px",height:"100px"}} />
+             
+              </>):(<>
+                  
+                <Form.Item
+              label="Photo"
+              name="photo"
+              onChange={(e) => setPhoto(e.target.files[0])}
+              
+              rules={[
+                { required: true, message: "Please upload the driver's photo!" },
+              ]}
+            >
+              <Upload
+                listType="picture"
+                beforeUpload={() => false}
+                onChange={uploadImage}
+  
+                
+                showUploadList={false}
+                customRequest={({ file, onSuccess }) => {
+                  setTimeout(() => {
+                    onSuccess("ok");
+                  }, 0);
+                }}
+              >
+                <Button icon={<UploadOutlined />}>Upload Photo</Button>
+              </Upload>
+            </Form.Item>
+            {photo && (
+              <div>
+                <img
+                  src={URL.createObjectURL(photo)}
+                  alt="Uploaded"
+                  height="100px"
+                  width="100px"
+                />
+              </div>
+            )}
+              </>)
+            }
+            
+            
+            </>):(<>
+            
+            
           <Form.Item
             label="Photo"
             name="photo"
@@ -1156,6 +1236,8 @@ const Employees = () => {
               listType="picture"
               beforeUpload={() => false}
               onChange={uploadImage}
+
+              
               showUploadList={false}
               customRequest={({ file, onSuccess }) => {
                 setTimeout(() => {
@@ -1166,18 +1248,21 @@ const Employees = () => {
               <Button icon={<UploadOutlined />}>Upload Photo</Button>
             </Upload>
           </Form.Item>
-
-          {photo && (
-            <div>
-              <img
-                src={URL.createObjectURL(photo)}
-                alt="Uploaded"
-                height="100px"
-                width="100px"
-              />
-            </div>
-          )}
-
+            {photo && (
+              <div>
+                <img
+                  src={URL.createObjectURL(photo)}
+                  alt="Uploaded"
+                  height="100px"
+                  width="100px"
+                />
+              </div>
+            )}
+            
+            
+            
+            </>)
+          }
           <Form.Item
             name="email"
             label="Email"

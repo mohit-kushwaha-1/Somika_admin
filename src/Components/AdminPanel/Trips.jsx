@@ -258,7 +258,8 @@
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import {
+import
+{
   Table,
   Button,
   Modal,
@@ -283,7 +284,8 @@ import { background, Select } from "@chakra-ui/react";
 
 import { Text, Box, Flex } from "@chakra-ui/react";
 
-import {
+import
+{
   List,
   ListItem,
   ListIcon,
@@ -294,7 +296,8 @@ import { h1 } from "framer-motion/client";
 
 // import {  message} from 'antd';
 
-const Trips = () => {
+const Trips = () =>
+{
   const [status, setStatus] = useState("");
   const [vehicleId, setVehicleId] = useState("");
   const [data, setData] = useState();
@@ -313,11 +316,11 @@ const Trips = () => {
   const [employeeId, setEmployeeId] = useState("");
   const [reportData, setReportData] = useState(null);
   const [filteredData, setFilteredData] = useState(null);
-  const[filterN,setFilterN] = useState(false);
-  const[cost,setCost] = useState();
-  const[emp,setEmp] = useState();
+  const [filterN, setFilterN] = useState(false);
+  const [cost, setCost] = useState();
+  const [emp, setEmp] = useState();
 
-  console.log("data",startDate,"end",endDate,"status",status1,"triptype",tripType,"emp is",employeeId)
+  console.log("data", startDate, "end", endDate, "status", status1, "triptype", tripType, "emp is", employeeId)
 
   // const [selectedLocation, setSelectedLocation] = useState(null);
   // const [selectedLocation, setSelectedLocation] = useState("");
@@ -326,48 +329,57 @@ const Trips = () => {
 
 
 
-   const handleOk1 = () => {
+  const handleOk1 = () =>
+  {
     setIsModalOpen1(false);
   };
-  const handleCancel1 = () => {
+  const handleCancel1 = () =>
+  {
     setIsModalOpen1(false);
   };
 
 
-  const handleCost = (record)=>{
+  const handleCost = (record) =>
+  {
     setIsModalOpen1(true);
-    console.log("record data is",record);
+    console.log("record data is", record);
     setCost(record?.employeeCosts)
   }
 
 
-  const fetchEmployees = async () => {
-    
+  const fetchEmployees = async () =>
+  {
 
-    try {
+
+    try
+    {
       const response = await fetch('http://102.133.144.226:8000/api/v1/users/getAllUser');
-        const result = await response.json();
+      const result = await response.json();
 
-        console.log("employ data is following ",result.data);
-        setEmp(result.data)
-    } catch (error) {
-       console.log(error)
+      console.log("employ data is following ", result.data);
+      setEmp(result.data)
+    } catch (error)
+    {
+      console.log(error)
     }
   };
 
 
-  const filterdataIs = async () => {
+  const filterdataIs = async () =>
+  {
     const id = "66c865228897f067258244f3";
     // startDate=${"2024-09-01"}&endDate=${"2024-09-30"}&status=${"booked"}&tripType=${"interoffice"}&employeeId=${"66c865228897f067258244f3"}
-    try {
+    try
+    {
       const response = await axios.get(
-        `http://102.133.144.226:8000/api/v1/report/tripReport/?startDate=${startDate}&endDate=${endDate}&status=${status1}&tripType=${tripType}&employeeId=${employeeId}`
+        `http://102.133.144.226:8000/api/v1/report/tripReport/?startDate=${ startDate }&endDate=${ endDate }&status=${ status1 }&tripType=${ tripType }&employeeId=${ employeeId }`
       );
-      
-      console.log("filter data is now ",response.data.report);
+
+      console.log("filter data is now ", response.data.report);
       const data1 = response.data.report
 
-      const finaldata = data1.map((item) => {
+      const finaldata = data1.map((item) =>
+      {
         const starttime = item?.startTime;
 
         const date = new Date(starttime);
@@ -384,11 +396,13 @@ const Trips = () => {
         minutes = minutes < 10 ? "0" + minutes : minutes; // Add leading zero if needed
 
         // Format the time
-        const formattedTime = `${day}-${month.toLowerCase()},${hours}.${minutes}${ampm}`;
+        const formattedTime = `${ day }-${ month.toLowerCase() },${ hours }.${ minutes }${ ampm }`;
 
-        const formatDate = (dateString) => {
+        const formatDate = (dateString) =>
+        {
           const date = new Date(dateString);
-          if (isNaN(date.getTime())) {
+          if (isNaN(date.getTime()))
+          {
             return "No Date Available";
           }
 
@@ -406,16 +420,16 @@ const Trips = () => {
         // let currentLocation = item?.boardingPoint._id;
         // let destinationLocation = item?.destinationPoint._id;
         const returndata = {
-          name: item?.employeeCosts[0]?.employeeName         ,
+          name: item?.employeeCosts[0]?.employeeName,
           Email: item?.employeeCosts[0]?.employeeEmail,
           mobile: "NA",
           BoradingPoint: item?.boardingPoint,
-          DestinationPonint: item?.destinationPoint ,
+          DestinationPonint: item?.destinationPoint,
           starttime: formattedTime,
           status: item?.status,
-          
-         employeeCosts:item?.employeeCosts,
-         
+
+          employeeCosts: item?.employeeCosts,
+
 
           // currentLocationID: currentLocation,
           // destinationLocationID: destinationLocation,
@@ -426,15 +440,17 @@ const Trips = () => {
         return returndata;
       });
       console.log("filter data is now", response.data);
-      console.log("formated data is now ",finaldata);
+      console.log("formated data is now ", finaldata);
       setFilteredData(finaldata)
-      if(response){
+      if (response)
+      {
         setFilterN(true);
       }
-    } catch (error) {}
+    } catch (error) { }
   };
 
-  const resetFilter = ()=>{
+  const resetFilter = () =>
+  {
     setStartDate("");
     setEndDate("")
     setStatus1("")
@@ -442,14 +458,15 @@ const Trips = () => {
     setEmployeeId("")
     setFilteredData(null);
     setFilterN(false)
-    
+
   }
 
   // useEffect(() => {
   //   filterdataIs();
   // }, []);
 
-  useEffect(() => {
+  useEffect(() =>
+  {
     fetchTrip();
     fetchEmployees();
   }, []);
@@ -458,19 +475,23 @@ const Trips = () => {
   //   handleRowClick()
   // }, []);
 
-  const handleRow = async (record) => {
+  const handleRow = async (record) =>
+  {
     // console.log("Clicked row data:", record);
     setRecord(record); // Update state with clicked row data
     setIsModalOpen(true); // Open modal if necessary
     setShowCabs(false);
     // Since setState is asynchronous, resolve the promise after state is se
 
-    setTimeout(async () => {
-      try {
+    setTimeout(async () =>
+    {
+      try
+      {
         const currentLocation = record?.currentLocationID;
         const destinationLocation = record?.destinationLocationID;
         const bookingDate = record?.bookingDate1;
-        const getCurrentTime = () => {
+        const getCurrentTime = () =>
+        {
           const currentTime = new Date();
           return currentTime.toLocaleTimeString("en-US", {
             hour: "numeric",
@@ -493,17 +514,20 @@ const Trips = () => {
 
         // console.log("data is is is", data);
 
-        const filter = data?.data?.suitableCabs?.filter((item) => {
+        const filter = data?.data?.suitableCabs?.filter((item) =>
+        {
           return item?.cab?.type === "NA";
         });
 
-        if (filter) {
+        if (filter)
+        {
           setCabs(filter);
           console.log("etcabs is running");
         }
 
         // console.log("filter data is", filter);
-      } catch (error) {
+      } catch (error)
+      {
         console.log(error);
       }
     }, 100);
@@ -511,19 +535,23 @@ const Trips = () => {
 
   // console.log("vehicle id is following", record1);
 
-  const handleAlloted = () => {
+  const handleAlloted = () =>
+  {
     setIsModalOpen(true);
   };
 
-  const handleCancel = () => {
+  const handleCancel = () =>
+  {
     setIsModalOpen(false);
     setCabs([]);
   };
 
-  const fetchTrip = async () => {
+  const fetchTrip = async () =>
+  {
     setLoading(true);
     console.log("we start");
-    try {
+    try
+    {
       const response = await fetch(
         "http://102.133.144.226:8000/api/v1/trip/getAllIntercityTripRequests"
       );
@@ -536,10 +564,12 @@ const Trips = () => {
       // const result3 = await response1.json();
 
       const result1 = result.tripRequests;
-      if (result.message === "Trip requests fetched successfully") {
+      if (result.message === "Trip requests fetched successfully")
+      {
         const reversedArr = result1.reverse();
 
-        const data1 = reversedArr.filter((item) => {
+        const data1 = reversedArr.filter((item) =>
+        {
           return (
             item.boardingPoint !== null &&
             item.employeeId !== null &&
@@ -547,7 +577,8 @@ const Trips = () => {
           );
         });
 
-        const finaldata = data1.map((item) => {
+        const finaldata = data1.map((item) =>
+        {
           const starttime = item?.startTime;
 
           const date = new Date(starttime);
@@ -564,11 +595,13 @@ const Trips = () => {
           minutes = minutes < 10 ? "0" + minutes : minutes; // Add leading zero if needed
 
           // Format the time
-          const formattedTime = `${hours}.${minutes}${ampm},${day}-${month.toLowerCase()}`;
+          const formattedTime = `${ hours }.${ minutes }${ ampm },${ day }-${ month.toLowerCase() }`;
 
-          const formatDate = (dateString) => {
+          const formatDate = (dateString) =>
+          {
             const date = new Date(dateString);
-            if (isNaN(date.getTime())) {
+            if (isNaN(date.getTime()))
+            {
               return "No Date Available";
             }
 
@@ -606,12 +639,15 @@ const Trips = () => {
         setData(finaldata);
         // console.log("data 1 is",data1[1]._id);
         // console.log("data 1 is",data1);
-      } else {
+      } else
+      {
         console.log("error in fetching data");
       }
-    } catch (error) {
+    } catch (error)
+    {
       console.error("Error fetching employees:", error);
-    } finally {
+    } finally
+    {
       setLoading(false);
     }
   };
@@ -660,13 +696,16 @@ const Trips = () => {
   //   }
   // };
 
-  const handleAprove = async () => {
-    try {
+  const handleAprove = async () =>
+  {
+    try
+    {
       const status = "approved";
       const requestId = record1?.requestId;
       // console.log("vehicale id is",vehicleId);
 
-      if (!vehicleId) {
+      if (!vehicleId)
+      {
         message.error(" Please select Vehicle");
       }
       const data = await axios.post(
@@ -678,7 +717,8 @@ const Trips = () => {
         }
       );
 
-      if (data.data.message === "Trip approved and booked successfully") {
+      if (data.data.message === "Trip approved and booked successfully")
+      {
         message.success("trip booked succesfully");
         fetchTrip();
         // setIsModalOpen(false);
@@ -687,13 +727,16 @@ const Trips = () => {
         cabs([]);
       }
       console.log(data);
-    } catch (error) {
+    } catch (error)
+    {
       console.log(error);
     }
   };
 
-  const handleReject = async () => {
-    try {
+  const handleReject = async () =>
+  {
+    try
+    {
       const status = "rejected";
       const requestId = record1?.requestId;
       // console.log("vehicale id is", vehicleId);
@@ -706,14 +749,16 @@ const Trips = () => {
         }
       );
 
-      if (data.data.message === "Trip request rejected") {
+      if (data.data.message === "Trip request rejected")
+      {
         message.success("trip Reject succesfully");
         // setIsModalOpen(false);
         fetchTrip();
         setShowCabs(true);
       }
       console.log(data);
-    } catch (error) {
+    } catch (error)
+    {
       console.log(error);
     }
   };
@@ -726,8 +771,8 @@ const Trips = () => {
     },
 
     {
-      title:  !filterN? "Mobile":"",
-      dataIndex:  !filterN? "mobile":"",
+      title: !filterN ? "Mobile" : "",
+      dataIndex: !filterN ? "mobile" : "",
       key: "mobile",
     },
     {
@@ -753,61 +798,82 @@ const Trips = () => {
       key: "starttime",
     },
     {
-      title:!filterN? "Status":"",
+      title: !filterN ? "Status" : "",
       key: "status",
-      render:  !filterN? (_, record) => {
+      filters: [
+        {
+          text: "Approved",
+          value: "approved",
+        },
+        {
+          text: "Pending",
+          value: "pending",
+        },
+        {
+          text: "Rejected",
+          value: "rejected",
+        },
+      ],
+      onFilter: (value, record) => record.status === value,
+      render: !filterN ? (_, record) =>
+      {
         let color;
         let statusText;
 
         // Determine color and text based on the status value
-        if (record.status === "approved") {
+        if (record.status === "approved")
+        {
           color = "green";
           statusText = "Approved";
-        } else if (record.status === "pending") {
+        } else if (record.status === "pending")
+        {
           color = "orange";
           statusText = "Pending";
-        } else if (record.status === "rejected") {
+        } else if (record.status === "rejected")
+        {
           color = "red";
           statusText = "Rejected";
         }
-        
+
 
         return <span style={{ color }}>{statusText}</span>;
-      }:"",
+      } : "",
     },
 
     {
-      title: !filterN? "Actions":"",
+      title: !filterN ? "Actions" : "",
       key: "actions",
-      render:!filterN? (_, record) => (
+      render: !filterN ? (_, record) => (
         <>
           <Button
-            onClick={() => {
+            onClick={() =>
+            {
               handleRow(record);
             }}
           >
             Update
           </Button>
         </>
-      ):"",
+      ) : "",
     },
 
 
     {
-      title: filterN? "Action":"",
+      title: filterN ? "Action" : "",
       key: "action",
-      render:filterN? (_, record) => (
+      render: filterN ? (_, record) => (
         <>
           <Button
-            onClick={() => {
-              
+            onClick={() =>
+            {
+
               handleCost(record);
             }}
           >
             View
           </Button>
         </>
-      ):"",
+      ) : "",
     },
   ];
 
@@ -816,28 +882,29 @@ const Trips = () => {
 
 
       <Modal title="Basic Modal" open={isModalOpen1} onOk={handleOk1} onCancel={handleCancel1}>
-       
-         {
-          cost?(<p>{cost?.map((item)=>{
-               return(
 
-                
-                <>
+        {
+          cost ? (<p>{cost?.map((item) =>
+          {
+            return (
+
+
+              <>
                 <Box>
-                   <Flex>
-                         <pre>Cost {item?.cost}  Distance {item?.distanceTraveled} Name  {item?.employeeName}</pre>
-                         
-                         
-                   </Flex>
+                  <Flex>
+                    <pre>Cost {item?.cost}  Distance {item?.distanceTraveled} Name  {item?.employeeName}</pre>
+
+
+                  </Flex>
                 </Box>
-                  
-                </>
-               )
-          })}</p>):(<></>)
-         }
+
+              </>
+            )
+          })}</p>) : (<></>)
+        }
       </Modal>
 
-      <form   >
+      {/* <form   >
         <div style={{ display: "flex" }}>
           <div>
             <label>Start Date: </label>
@@ -846,7 +913,7 @@ const Trips = () => {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              
+
               style={{
                 border: "1px solid black",
                 width: "180px",
@@ -913,27 +980,15 @@ const Trips = () => {
             </select>
           </div>
 
-          {/* emp */}
+      
 
           <div>
             <label>Employee ID: </label>
             <br />
-            {/* <input
-              type="text"
-              value={employeeId}
-              onChange={(e) => setEmployeeId(e.target.value)}
-              style={{
-                border: "1px solid black",
-                width: "180px",
-                marginRight: "10px",
-                borderRadius: "10px",
-                padding: "5px",
-              }}
-              
-            /> */}
+           
 
 
-               <select
+            <select
               value={employeeId}
               onChange={(e) => setEmployeeId(e.target.value)}
               style={{
@@ -944,8 +999,8 @@ const Trips = () => {
                 padding: "5px",
               }}
             >
-                <option value="">Select Employee</option>
-                {emp?.map((item) => (
+              <option value="">Select Employee</option>
+              {emp?.map((item) => (
                 <option key={item._id} value={item._id}>
                   {item.name}
                 </option>
@@ -955,25 +1010,25 @@ const Trips = () => {
           </div>
         </div>
 
-        
-      </form>
-      
 
-      <div style={{marginBottom:"20px"}}>
-      <button onClick={filterdataIs} style={{width:"110px",background:"blue",marginTop:"10px",height:"30px",borderRadius:"10px",color:"white",marginRight:"20px"}}>Filter</button>
-      <button onClick={resetFilter} style={{width:"110px",background:"blue",marginTop:"10px",height:"30px",borderRadius:"10px",color:"white"}}>Reset Filter</button>
-      </div>
-     
+      </form> */}
+
+
+      {/* <div style={{ marginBottom: "20px" }}>
+        <button onClick={filterdataIs} style={{ width: "110px", background: "blue", marginTop: "10px", height: "30px", borderRadius: "10px", color: "white", marginRight: "20px" }}>Filter</button>
+        <button onClick={resetFilter} style={{ width: "110px", background: "blue", marginTop: "10px", height: "30px", borderRadius: "10px", color: "white" }}>Reset Filter</button>
+      </div> */}
+
       <Table
         columns={columns}
         dataSource={filteredData || data}
         loading={loading}
         rowKey="key"
-        // onRow={(record) => ({
-        //   onClick: () => {
-        //     handleRowClick(record); // Trigger the click handler
-        //   },
-        // })}
+      // onRow={(record) => ({
+      //   onClick: () => {
+      //     handleRowClick(record); // Trigger the click handler
+      //   },
+      // })}
       />
 
       <Modal
@@ -1015,12 +1070,14 @@ const Trips = () => {
         <Select
           placeholder="Select Vehicle"
           value={vehicleId}
-          onChange={(e) => {
+          onChange={(e) =>
+          {
             setVehicleId(e.target.value);
           }}
           style={{ marginBottom: "20px" }}
         >
-          {cabs?.map((item) => {
+          {cabs?.map((item) =>
+          {
             return (
               <>
                 <option key={item.id} value={item?.cab?.vehicle_id}>
@@ -1052,7 +1109,8 @@ const Trips = () => {
             <Flex mb={"15px"}>
               <UnorderedList>
                 {cabs ? (
-                  cabs?.map((item) => {
+                  cabs?.map((item) =>
+                  {
                     return (
                       <>
                         <ListItem>

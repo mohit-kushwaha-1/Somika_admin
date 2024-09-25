@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 // import { Table, Button, Modal, Form, Input, Select, message, Switch } from 'antd';
-import {
+import
+{
   Button,
   Modal,
   Table,
@@ -17,7 +18,8 @@ import axios from "axios";
 const { Option } = Select;
 // import { Text } from '@chakra-ui/react';
 
-const AirportTrip = ({ setSelectedTab }) => {
+const AirportTrip = ({ setSelectedTab }) =>
+{
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState();
@@ -28,22 +30,27 @@ const AirportTrip = ({ setSelectedTab }) => {
   // console.log("setSelectedTab is",setSelectedTab)
 
   const handleCardClick = (tabKey) =>
-    {
-        setSelectedTab(tabKey);
-    };
+  {
+    setSelectedTab(tabKey);
+  };
 
-  useEffect(() => {
-    const fetchData = async () => {
+  useEffect(() =>
+  {
+    const fetchData = async () =>
+    {
       setLoading(true);
-      try {
+      try
+      {
         const users = await axios.get(
           "http://102.133.144.226:8000/api/v1/users/getAllUser"
         );
         setUserData(users.data.data);
         console.log(users.data.data)
-      } catch (error) {
+      } catch (error)
+      {
         console.error("Error fetching users:", error);
-      } finally {
+      } finally
+      {
         setLoading(false);
       }
     };
@@ -52,60 +59,71 @@ const AirportTrip = ({ setSelectedTab }) => {
   }, []);
 
 
-  const getAlldropBooking = async()=>{
-         try {
-              const response = await axios.get("http://102.133.144.226:8000/api/v1/trip/getAllAirdropBookings")
-               
+  const getAlldropBooking = async () =>
+  {
+    try
+    {
+      const response = await axios.get("http://102.133.144.226:8000/api/v1/trip/getAllAirdropBookings")
 
 
-               const data1 = response.data.airdropTrips;
-               const data2 = data1?.map((item)=>{
-                     
-                const retrundata = {
-                  status:item?.employeeTrips[0]?.status,
-                  seatbooks:item?.employeeTrips[0]?.seatbooks,
-                  totalDistance:item?.totalDistance,
-                  totalTime:item?.totalTime,
-                  type:item?.type,
 
-                }
+      const data1 = response.data.airdropTrips;
+      const data2 = data1?.map((item) =>
+      {
 
-                return retrundata
-               })
+        const retrundata = {
+          employeeName: item?.employeeTrips[0]?.employeeId.name,
+          employeeEmail: item?.employeeTrips[0]?.employeeId.email,
+          seatbooks: item?.employeeTrips[0]?.seatbooks,
+          totalDistance: item?.totalDistance,
+          status: item?.status,
+          type: item?.type,
+          boardingPoint: item.boardingPoint.companyId.name,
+          destinationPoint: item.destinationPoint.companyId.name,
+        }
 
-               console.log("reponse data is ",data2);
-               setData(data2)
-         } catch (error) {
-           console.log(error);
-         }
+        return retrundata
+      })
+
+      console.log("reponse data is ", data2);
+      setData(data2)
+    } catch (error)
+    {
+      console.log(error);
+    }
   }
 
 
-  useEffect(()=>{
+  useEffect(() =>
+  {
     getAlldropBooking();
-  },[])
+  }, [])
 
-  const handleSearch1 = (value) => {
+  const handleSearch1 = (value) =>
+  {
     setSearchValue(value);
     // console.log("value is ",typeof value);
-    if (value) {
+    if (value)
+    {
       const filtered = userData?.filter(
         (user) =>
           user.name.toLowerCase().includes(value.toLowerCase()) ||
           user.email.toLowerCase().includes(value.toLowerCase())
       );
       setFilteredOptions(filtered);
-    } else {
+    } else
+    {
       setFilteredOptions([]);
     }
   };
 
-  if(searchValue){
-    localStorage.setItem('empId',searchValue);
+  if (searchValue)
+  {
+    localStorage.setItem('empId', searchValue);
   }
-  console.log("search value is ",typeof searchValue);
+  console.log("search value is ", typeof searchValue);
 
-  
+
   // status:item?.employeeTrips[0]?.status,
   // seatbooks:item?.employeeTrips[0]?.seatbooks,
   // totalDistance:item?.totalDistance,
@@ -113,36 +131,37 @@ const AirportTrip = ({ setSelectedTab }) => {
   // type:item?.type,
   const columns = [
     {
-      title: 'Seat books',
-      dataIndex: 'seatbooks',
-      key: 'seatbooks',
+      title: 'Email',
+      dataIndex: 'employeeEmail',
+      key: 'employeeEmail',
     },
     {
-      title: 'Total Distance',
-      dataIndex: 'totalDistance',
-      key: 'totalDistance',
+      title: 'Name',
+      dataIndex: 'employeeName',
+      key: 'employeeName',
     },
     {
-      title: 'Total Time',
-      dataIndex: 'totalTime',
-      key: 'totalTime',
+      title: 'Boarding Point',
+      dataIndex: 'boardingPoint',
+      key: 'boardingPoint',
+    },
+    {
+      title: 'Destination Point',
+      dataIndex: 'destinationPoint',
+      key: 'destinationPoint',
     },
     {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
     },
-    {
-      title: 'Type',
-      dataIndex: 'type',
-      key: 'type',
-    },
 
-    
+
+
   ];
 
 
-  
+
   return (
     <>
       {/* <Flex gap="small">
@@ -167,13 +186,13 @@ const AirportTrip = ({ setSelectedTab }) => {
       </Flex> */}
 
 
-        <h1 style={{fontSize:"1.2rem",marginBottom:"10px"}}>Airport Trip</h1>
+      <h1 style={{ fontSize: "1.2rem", marginBottom: "10px" }}>Airport Trip</h1>
 
-        <div>
-        <Button  onClick={() => handleCardClick('airportbook')} type="primary"  style={{marginLeft:"10px"}}>New Booking</Button> 
-        </div>
-       
-        <Table
+      <div>
+        <Button onClick={() => handleCardClick('airportbook')} type="primary" style={{ marginLeft: "10px" }}>New Booking</Button>
+      </div>
+
+      <Table
         columns={columns}
         dataSource={data}
         loading={loading}

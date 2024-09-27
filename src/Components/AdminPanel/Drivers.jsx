@@ -89,12 +89,13 @@ const Drivers = () => {
                     setIsModal2Visible(false);
                     setSelectedVehicle("");
                     fetchData();
+                    setVehicleData("");
                     // setUnallotedV("")
                     
                     
                   }
               }
-              else {
+              else if(!record1?.vehicle_id) {
                 const response = await axios.post("http://102.133.144.226:8000/api/v1/driver/allot-vehicle",{
                   driverId:record1?._id,
                   newVehicleId:selectedVehicle,
@@ -105,7 +106,7 @@ const Drivers = () => {
                   message.success("Vehicle alloted successfully")
                   setIsModal2Visible(false);
                   // setUnallotedV("");
-                  
+                  setVehicleData("");
                   fetchData();
                 }
               }

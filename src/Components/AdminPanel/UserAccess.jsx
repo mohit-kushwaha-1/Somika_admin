@@ -245,7 +245,7 @@ const UserAccess = () => {
     "Setups",
     "Location",
     // "Exception Report",
-    "Master Card",
+    "All Trip",
   ];
   useEffect(() => {
     fetchUsersWithAccess();

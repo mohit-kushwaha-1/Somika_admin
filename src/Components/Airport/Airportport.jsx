@@ -455,15 +455,17 @@ const Airportport = () => {
       setDistinationData(destinatinData1)
    
 
-
-      // const allowedLocationsResponse = await fetch('http://102.133.144.226:8000/api/v1/companies/getAllLocation');
-      // const allowedLocationsResult = await allowedLocationsResponse.json();
+      // getAlllocationForAirportBooking
+      const allowedLocationsResponse = await fetch('http://102.133.144.226:8000/api/v1/companies/getAlllocationForAirportBooking');
+      const allowedLocationsResult = await allowedLocationsResponse.json();
       // const allowedLocationsData = allowedLocationsResult.Locations.map(location => ({
       //   value: location.value,
       //   label: location.label,
       // }));
 
-      // setAllowedLocations(allowedLocationsData);
+      console.log("allowedLocationsResult",allowedLocationsResult.location);
+
+      setAllowedLocations(allowedLocationsResult?.location);
      
     } catch (error) {
       console.error('Error fetching dropdown data:', error);
@@ -786,7 +788,7 @@ const Airportport = () => {
         onChange={(value)=>{setDestination(value)}}
         style={{ width: 200,border:"1px solid black",borderRadius:"8px" }}
         >
-              {baseLocations.map(loc => (
+              {allowedLocations?.map(loc => (
                 <Option key={loc.value} value={loc.value}>
                   {loc.label}
                 </Option>

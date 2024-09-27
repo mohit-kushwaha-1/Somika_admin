@@ -7,6 +7,8 @@ import { BellOutlined,TranslationOutlined ,TruckOutlined ,CloseCircleOutlined } 
 import { render } from '@testing-library/react';
 
 const { Option } = Select;
+// import { TreeSelect } from 'antd';
+
 
 const Vehicle = () => {
   const [data, setData] = useState([]);
@@ -47,6 +49,38 @@ const Vehicle = () => {
   const[cross,setCross] = useState(true);
 
   // const[image1,setImage] = useState();
+
+  const [selectedValues, setSelectedValues] = useState([]);
+
+  // Fetch the allowed locations from the API
+  useEffect(() => {
+    const fetchAllowedLocations = async () => {
+      try {
+        const response = await fetch('http://102.133.144.226:8000/api/v1/companies/getAllLocation');
+        const result = await response.json();
+        const locationsData = result.Locations.map(location => ({
+          value: location.value, // Use "value" from API response
+          label: location.label, // Use "label" from API response
+        }));
+        setAllowedLocations(locationsData);
+      } catch (error) {
+        console.error("Failed to fetch locations", error);
+      }
+    };
+
+    fetchAllowedLocations();
+  }, []);
+
+  // Handle Select change
+  const handleChange = (values) => {
+    if (values.includes("selectAll")) {
+      // If "Select All" is selected, select all options
+      const allValues = allowedLocations.map(loc => loc.value);
+      setSelectedValues(allValues);
+    } else {
+      setSelectedValues(values); // Update selected values normally
+    }
+  };
 
 
 
@@ -141,7 +175,10 @@ const Vehicle = () => {
     setLoading(true);
     try {
       const response = await axios.get('http://102.133.144.226:8000/api/v1/vehicles');
-      setData(response.data);
+
+      const data3 = response.data;
+      const data2= data3.reverse();
+      setData(data2);
       // console.log("responce data  is now ",response.data);
 
       const data1 = response.data;
@@ -278,6 +315,17 @@ const Vehicle = () => {
     }
   };
 
+
+  const treeData = [
+    {
+      title: 'Select All',
+      value: 'selectAll',
+      children: allowedLocations,
+    },
+  ];
+
+
+
   const handleAdd = () => {
     form.resetFields();
     setIsEditing(false);
@@ -303,7 +351,7 @@ const Vehicle = () => {
       
     const dataToSend = {
       allowed_locations: {
-        location: record.allowed_locations
+        location: selectedValues
       }
     };
 
@@ -352,6 +400,7 @@ const Vehicle = () => {
         message.success(`Vehicle status updated `);
       } else {
         message.error('Failed to update Vehicle status.');
+        
       }
     } catch (error) {
       message.error('Error updating Vehicle status.');
@@ -361,9 +410,15 @@ const Vehicle = () => {
 
   const handleFinish = async (values) => {
     
-    const dataToSend =  {
-        location: values.allowed_locations
+
+    const newALlo = selectedValues.map((item)=>{
+            return item !=values?.base_location
+    })
+    const dataToSend = {
+      allowed_locations: {
+        location: newALlo
       }
+    };
     
 
     const vehicleData = {
@@ -615,7 +670,7 @@ const Vehicle = () => {
                 padding: "5px",
               }}
             >
-                <option value="">Select BrandMakes</option>
+                <option value="">Select Brand</option>
                 {brandMakes.map((brand) => (
                 <option key={brand._id} value={brand._id}>
                   {brand.name}
@@ -629,7 +684,7 @@ const Vehicle = () => {
 
 
           <div>
-            <label>Transmission Types </label>
+            <label>Select Transmission </label>
             {/* transmit, setTransmite */}
             <br />
             <select
@@ -644,7 +699,7 @@ const Vehicle = () => {
               }}
             >
 
-              <option value="">Select TransmissionTypes</option>
+              <option value="">Select Transmission </option>
               {transmissionTypes.map((type) => (
                 <option key={type._id} value={type._id}>
                   {type.type}
@@ -823,7 +878,28 @@ const Vehicle = () => {
             </Select>
           </Form.Item >
 
+
           <Form.Item
+        label="Allowed Locations"
+        name="allowed_locations"
+        rules={[{ required: true, message: 'Please select the allowed locations!' }]}
+      >
+        <Select
+          mode="multiple"
+          placeholder="Select Allowed Locations"
+          value={selectedValues}
+          onChange={handleChange}
+        >
+          <Option value="selectAll">Select All</Option>
+          {allowedLocations.map(loc => (
+            <Option key={loc.value} value={loc.value}>
+              {loc.label}
+            </Option>
+          ))}
+        </Select>
+      </Form.Item>
+
+          {/* <Form.Item
             label="Allowed Locations"
             name="allowed_locations"
             rules={[{ required: true, message: 'Please select the allowed location!' }]}
@@ -836,9 +912,7 @@ const Vehicle = () => {
               //  onDeselect={handleDeselect}
             >
 
-           {/* <Option key="selectAll" value="selectAll">
-            Select All
-          </Option> */}
+
 
               {allowedLocations.map(loc => (
                 <Option key={loc.value} value={loc.value}>
@@ -846,7 +920,7 @@ const Vehicle = () => {
                 </Option>
               ))}
             </Select>
-          </Form.Item>
+          </Form.Item> */}
 
           {
             isEditing?(<> 

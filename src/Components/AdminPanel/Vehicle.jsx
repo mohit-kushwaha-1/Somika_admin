@@ -388,6 +388,7 @@ const Vehicle = () => {
       } else {
         await axios.post('http://102.133.144.226:8000/api/v1/vehicles', vehicleData);
         message.success('Vehicle added successfully.');
+        setImage("")
       }
       fetchData();
       setIsModalVisible(false);

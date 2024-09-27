@@ -49,6 +49,9 @@ import Airportport from "../Airport/Airportport";
 // import Notify from "../../Notify";
 import Notify from "./Notify";
 import AllTrip from "./AllTrip";
+import Intersity from "../Masters/Intersity";
+import Airport1 from "../Masters/Airport1";
+import GeoFacing from "./GeoFacing";
 
 const { Header, Sider, Content } = Layout;
 
@@ -94,6 +97,8 @@ const AdminPanel = () => {
         return <Vehicle />;
       case "trips":
         return <Trips />;
+        case "geofacing":
+        return <GeoFacing />;
       // case "couriers":
       //   return <Couriers />;
       case "requests":
@@ -106,6 +111,10 @@ const AdminPanel = () => {
         return <MasterCards setSelectedTab={setSelectedTab} />;
       case "company-master":
         return <CompanyMaster />;
+        case "intersity-master":
+        return <Intersity />;
+        case "airport-master":
+        return <Airport1 />;
       case "location-master":
         return <LocationMaster />;
       case "department-master":
@@ -165,6 +174,7 @@ const AdminPanel = () => {
     // courier: { key: "couriers", icon: <CarryOutOutlined />, label: "Courier" },
     request: { key: "requests", icon: <FormOutlined />, label: "Cancel Request" },
     airport: { key: "airport", icon: <TranslationOutlined />, label: "Airport Booking" },
+    geofacing: { key: "geofacing", icon: <CarryOutOutlined />, label: "Geo Fencing" },
     "base location": {
       key: "base-location-reporting",
       icon: <HomeOutlined />,

@@ -124,7 +124,7 @@ const UserAccess = () => {
     await axios
       .post(
         "http://102.133.144.226:8000/api/v1/users/giveAccessToUser/" +
-          selectedUser,
+        searchValue,
         { access: checkedList }
       )
       .then((res) => {
@@ -157,6 +157,8 @@ const UserAccess = () => {
           key: item._id,
           ...item,
         }));
+
+        console.log("result",result);
         setData(users);
         // message.success('Users fetched successfully');
       } else {

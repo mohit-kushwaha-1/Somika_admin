@@ -18,9 +18,9 @@ const Notify = ({setSelectedTab}) => {
   const [notifications, setNotifications] = useState([]);
   const[count,setCount] = useState(0)
 
-  const user = localStorage.getItem('user');
+  const user =  JSON.parse(localStorage.getItem('user'));
 
-  // console.log("user is",user);
+  console.log("user is",user._id);
 
   const {_id} = user;
   // console.log("id id ",_id);
@@ -41,7 +41,7 @@ const Notify = ({setSelectedTab}) => {
   const fetchNotifications = async () => {
     try {
       const response = await axios.get(
-        "http://102.133.144.226:8000/api/v1/notifications/user/66d03aa8836f9cd0d1b94ad7"
+        `http://102.133.144.226:8000/api/v1/notifications/user/${user?._id}`
       );
       setNotifications(response.data.notifications);
       // console.log("notification is",response.data.notifications);

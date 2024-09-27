@@ -2,6 +2,7 @@
 import React from 'react';
 import '../Styles/MasterCards.css';
 
+
 const MasterCards = ({ setSelectedTab }) =>
 {
 
@@ -59,6 +60,14 @@ const MasterCards = ({ setSelectedTab }) =>
             </div>
             <div className="card" onClick={() => handleCardClick('country-code')}>
                 Country Code
+            </div>
+
+            <div className="card" onClick={() => handleCardClick('intersity-master')}>
+                Intercity
+            </div>
+
+            <div className="card" onClick={() => handleCardClick('airport-master')}>
+                Airport
             </div>
         </div>
     );

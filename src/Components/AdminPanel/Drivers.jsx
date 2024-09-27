@@ -374,6 +374,7 @@ const Drivers = () => {
           driverData
         );
         message.success("Driver added successfully.");
+        setPhoto("");
       }
       fetchData();
       setIsModalVisible(false);

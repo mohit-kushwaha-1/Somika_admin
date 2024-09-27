@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input } from 'antd';
 
-const CompanyMaster = () =>
+const Intersity = () =>
 {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,12 +21,25 @@ const CompanyMaster = () =>
       const result = await response.json();
       result.map((result_data) =>
       {
-        if (result_data.is_type == 0)
+        if (result_data.is_type == 3)
         {
           arr.push(result_data)
         }
       })
+
+
+      //  const data1 = result?.getAllBaseLocations?.map((item)=>{
+      //          const returndata = {
+      //           address:item?.BaseDetails?.address,
+      //           name:item?.BaseDetails?.name,
+      //           latitude:item?.locations[0]?.coordinates?.coordinates[0],
+      //           longitude:item?.locations[0]?.coordinates?.coordinates[1],
+      //          }
+
+      //          return returndata
+      //  })
       setData(arr);
+      // console.log("result ",data1);
       setLoading(false);
     } catch (error)
     {
@@ -66,7 +79,7 @@ const CompanyMaster = () =>
   {
     const postData = {
       name: values.name,
-      is_type: 0,  
+      is_type: 3,  
       address: values.address,
       coordinates: {
         type: 'Point',
@@ -145,45 +158,52 @@ const CompanyMaster = () =>
     }
   };
 
-  const columns = [
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-    },
-    {
-      title: 'Address',
-      dataIndex: 'address',
-      key: 'address',
-    },
-    {
-      title: 'Latitude',
-      dataIndex: ['location', 'coordinates', 'coordinates', 1],
-      key: 'latitude',
-      render: (_, record) => record.location.coordinates.coordinates[1],
-    },
-    {
-      title: 'Longitude',
-      dataIndex: ['location', 'coordinates', 'coordinates', 0],
-      key: 'longitude',
-      render: (_, record) => record.location.coordinates.coordinates[0],
-    },
-    // {
-    //   title: 'Type',
-    //   dataIndex: 'is_type',
-    //   key: 'is_type',
-    // },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (_, record) => (
-        <>
-          <Button type="link" onClick={() => handleEdit(record)}>Edit</Button>
-          <Button type="link" onClick={() => handleDelete(record._id)}>Delete</Button>
-        </>
-      ),
-    },
-  ];
+
+
+//   address:item?.BaseDetails?.address,
+//                 name:item?.BaseDetails?.name,
+//                 latitude:item?.locations[0]?.coordinates?.coordinates[0],
+//                 longitude:item?.locations[0]?.coordinates?.coordinates[1],
+
+const columns = [
+  {
+    title: 'Name',
+    dataIndex: 'name',
+    key: 'name',
+  },
+  {
+    title: 'Address',
+    dataIndex: 'address',
+    key: 'address',
+  },
+  {
+    title: 'Latitude',
+    dataIndex: ['location', 'coordinates', 'coordinates', 1],
+    key: 'latitude',
+    render: (_, record) => record.location.coordinates.coordinates[1],
+  },
+  {
+    title: 'Longitude',
+    dataIndex: ['location', 'coordinates', 'coordinates', 0],
+    key: 'longitude',
+    render: (_, record) => record.location.coordinates.coordinates[0],
+  },
+  // {
+  //   title: 'Type',
+  //   dataIndex: 'is_type',
+  //   key: 'is_type',
+  // },
+  {
+    title: 'Actions',
+    key: 'actions',
+    render: (_, record) => (
+      <>
+        <Button type="link" onClick={() => handleEdit(record)}>Edit</Button>
+        <Button type="link" onClick={() => handleDelete(record._id)}>Delete</Button>
+      </>
+    ),
+  },
+];
 
   return (
     <div>
@@ -261,4 +281,4 @@ const CompanyMaster = () =>
   );
 };
 
-export default CompanyMaster;
+export default Intersity;

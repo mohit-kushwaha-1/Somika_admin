@@ -76,16 +76,16 @@ const AirportTrip = ({ setSelectedTab }) =>
           employeeEmail: item?.employeeTrips[0]?.employeeId.email,
           seatbooks: item?.employeeTrips[0]?.seatbooks,
           totalDistance: item?.totalDistance,
-          status: item?.status,
+          status: item?.employeeTrips[0]?.status,
           type: item?.type,
-          boardingPoint: item.boardingPoint.companyId.name,
-          destinationPoint: item.destinationPoint.companyId.name,
+          boardingPoint: item?.boardingPoint?.companyId?.name,
+          destinationPoint: item?.destinationPoint?.companyId?.name,
         }
 
         return retrundata
       })
 
-      console.log("reponse data is ", data2);
+      console.log("reponse data is ", data1);
       setData(data2)
     } catch (error)
     {

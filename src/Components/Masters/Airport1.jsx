@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input } from 'antd';
 
-const CompanyMaster = () =>
+const Airport1 = () =>
 {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,7 +21,7 @@ const CompanyMaster = () =>
       const result = await response.json();
       result.map((result_data) =>
       {
-        if (result_data.is_type == 0)
+        if (result_data.is_type == 2)
         {
           arr.push(result_data)
         }
@@ -66,7 +66,7 @@ const CompanyMaster = () =>
   {
     const postData = {
       name: values.name,
-      is_type: 0,  
+      is_type: 2,  
       address: values.address,
       coordinates: {
         type: 'Point',
@@ -261,4 +261,4 @@ const CompanyMaster = () =>
   );
 };
 
-export default CompanyMaster;
+export default Airport1;

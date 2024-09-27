@@ -475,6 +475,7 @@ const Airportport = () => {
 
 
   const findCabs = async () => {
+    setLoading(true)
     try {
 
       // const a = Object.values(clickedPosition1);
@@ -526,10 +527,13 @@ const Airportport = () => {
       );
 
       console.log("response data is following", response.data.suitableCabs);
+
       setAvailableCabs(response.data.suitableCabs);
+      
     } catch (error) {
       console.log(error)
     }
+    setLoading(false);
   };
 
 
@@ -539,11 +543,15 @@ const Airportport = () => {
       // const a = Object.values(clickedPosition1);
       // const boardingCoordinates = a.reverse();
 
-      const boardingCoordinates = bording;
+      const boardingPoint = bording;
       console.log("inside Post",bording)
       // const b = Object.values(clickedPosition2);
       // const destinationCoordinates = b.reverse();
-      const destinationCoordinates = destination1;
+      const destinationPoint = destination1;
+    // setStartTime(e.target.value);
+    const date = new Date(startTime1);
+    const isoDate = date.toISOString();
+    // setformat1(isoDate);
       const startTime = format1;
       // const endTime = foramt2;
       const vehicleId = selectedCardId;
@@ -554,8 +562,8 @@ const Airportport = () => {
         "http://102.133.144.226:8000/api/v1/trip/airdrop",
         {
           employeeId,
-          boardingCoordinates,
-          destinationCoordinates,
+          boardingPoint,
+          destinationPoint,
           startTime,
           // endTime,
           vehicleId,
@@ -806,7 +814,7 @@ const Airportport = () => {
 
 
     <div style={{ padding: '16px' }}>
-      <Button type="primary" onClick={findCabs} style={{ marginBottom: '16px',marginRight:"20px" }}>
+      <Button type="primary" onClick={findCabs} style={{ marginBottom: '16px',marginRight:"20px" }} loading={loading}>
          Get Cabs
       </Button>
 
@@ -834,8 +842,8 @@ const Airportport = () => {
                 <Meta
                 // capacity
 
-                  title={item?.cab?.vehicle_number} // Name to be displayed on the card
-                  description={item?.cab?.capacity} // Description to be displayed on the card
+                  title={`Vehicle Number :${item?.cab?.vehicle_number}`} // Name to be displayed on the card
+                  description={`Capacity :${item?.cab?.capacity}`} // Description to be displayed on the card
                 />
               </Card>
             </Col>

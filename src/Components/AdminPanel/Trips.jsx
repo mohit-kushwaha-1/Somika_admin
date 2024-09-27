@@ -595,7 +595,7 @@ const Trips = () =>
           minutes = minutes < 10 ? "0" + minutes : minutes; // Add leading zero if needed
 
           // Format the time
-          const formattedTime = `${ hours }.${ minutes }${ ampm },${ day }-${ month.toLowerCase() }`;
+          const formattedTime = `${ day }-${ month.toLowerCase() }, ${ hours }.${ minutes }${ ampm }`;
 
           const formatDate = (dateString) =>
           {
